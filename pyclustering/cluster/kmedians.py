@@ -30,7 +30,7 @@ import math;
 
 from pyclustering.cluster.encoder import type_encoding;
 
-from pyclustering.utils import euclidean_distance_sqrt;
+from pyclustering.utils import euclidean_distance_sqrd;
 
 import pyclustering.core.kmedians_wrapper as wrapper;
 
@@ -103,7 +103,7 @@ class kmedians:
                 self.__clusters = self.__update_clusters();
                 updated_centers = self.__update_medians();  # changes should be calculated before asignment
              
-                changes = max([euclidean_distance_sqrt(self.__medians[index], updated_centers[index]) for index in range(len(updated_centers))]);    # Fast solution
+                changes = max([euclidean_distance_sqrd(self.__medians[index], updated_centers[index]) for index in range(len(updated_centers))]);    # Fast solution
                  
                 self.__medians = updated_centers;
 
@@ -160,7 +160,7 @@ class kmedians:
             dist_optim = 0.0;
              
             for index in range(len(self.__medians)):
-                dist = euclidean_distance_sqrt(self.__pointer_data[index_point], self.__medians[index]);
+                dist = euclidean_distance_sqrd(self.__pointer_data[index_point], self.__medians[index]);
                  
                 if ( (dist < dist_optim) or (index is 0)):
                     index_optim = index;

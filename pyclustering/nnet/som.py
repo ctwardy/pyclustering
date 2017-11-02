@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt;
 
 import pyclustering.core.som_wrapper as wrapper;
 
-from pyclustering.utils import euclidean_distance_sqrt;
+from pyclustering.utils import euclidean_distance_sqrd;
 from pyclustering.utils.dimension import dimension_info;
 
 from enum import IntEnum;
@@ -340,7 +340,7 @@ class som:
         sqrt_distances = [ [ [] for i in range(size) ] for j in range(size) ];
         for i in range(size):
             for j in range(i, size, 1):
-                dist = euclidean_distance_sqrt(location[i], location[j]);
+                dist = euclidean_distance_sqrd(location[i], location[j]);
                 sqrt_distances[i][j] = dist;
                 sqrt_distances[j][i] = dist;
         
@@ -495,10 +495,10 @@ class som:
         """
         
         index = 0;
-        minimum = euclidean_distance_sqrt(self._weights[0], x);
+        minimum = euclidean_distance_sqrd(self._weights[0], x);
         
         for i in range(1, self._size, 1):
-            candidate = euclidean_distance_sqrt(self._weights[i], x);
+            candidate = euclidean_distance_sqrd(self._weights[i], x);
             if (candidate < minimum):
                 index = i;
                 minimum = candidate;
@@ -708,7 +708,8 @@ class som:
                     self._create_connections(type_conn.grid_eight);
                 
                 for neighbor_index in self._neighbors[neuron_index]:
-                    distance_matrix[i][j] += euclidean_distance_sqrt(self._weights[neuron_index], self._weights[neighbor_index]);
+                    distance_matrix[i][j] += euclidean_distance_sqrd(self._weights[neuron_index],
+                                                                     self._weights[neighbor_index]);
                     
                 distance_matrix[i][j] /= len(self._neighbors[neuron_index]);
     

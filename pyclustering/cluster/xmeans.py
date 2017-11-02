@@ -37,7 +37,7 @@ from pyclustering.cluster.encoder import type_encoding;
 
 import pyclustering.core.xmeans_wrapper as wrapper;
 
-from pyclustering.utils import euclidean_distance_sqrt, euclidean_distance;
+from pyclustering.utils import euclidean_distance_sqrd, euclidean_distance;
 from pyclustering.utils import list_math_addition_number, list_math_addition, list_math_division_number;
 
 
@@ -59,7 +59,7 @@ class splitting_type(IntEnum):
     ##
     ## The maximum likelihood estimate (MLE) for the variance:
     ## \f[\hat{\sigma}^2 = \frac{1}{N - K}\sum\limits_{j}\sum\limits_{i}||x_{ij} - \hat{C}_j||^2\f]
-    BAYESIAN_INFORMATION_CRITERION = 0;
+    BIC = BAYESIAN_INFORMATION_CRITERION = 0;
     
     ## Minimum noiseless description length (MNDL) to approximate the correct number of clusters.
     ## Beheshti's formula is used to calculate upper bound:
@@ -70,7 +70,20 @@ class splitting_type(IntEnum):
     ## To improve clustering results some contradiction is introduced:
     ## \f[W = \frac{1}{n_j}\sum\limits_{i}||x_{ij} - \hat{C}_j||\f]
     ## \f[\hat{\sigma}^2 = \frac{1}{N - K}\sum\limits_{j}\sum\limits_{i}||x_{ij} - \hat{C}_j||\f]
-    MINIMUM_NOISELESS_DESCRIPTION_LENGTH = 1;
+    MDL = MINIMUM_NOISELESS_DESCRIPTION_LENGTH = 1;
+
+
+
+    ## Penalized SSE, a pseudo-BIC
+    ## Just subtract the BIC parameter penalty from the WSSE (within-cluster sum squared error)
+    ## \f[pBIC(\theta) = L(D) - \frac{1}{2}p ln(N) \f]
+    ##
+    ## Use p from BIC.
+    ##
+    ## L(D) = WSSE = \f[ \sum\limits_{j}\sum\limits_{i}||x_{ij} - \hat{C}_j||^2\f]
+    ##
+    ## This is not a likelihood. However, it *is* the value that K-means is actually minimizing.
+    SSE = PENALIZED_SUM_SQUARE_ERROR
 
 
 class xmeans:
@@ -232,7 +245,7 @@ class xmeans:
             
             updated_centers = self.__update_centers(clusters);
           
-            changes = max([euclidean_distance_sqrt(centers[index], updated_centers[index]) for index in range(len(updated_centers))]);    # Fast solution
+            changes = max([euclidean_distance_sqrd(centers[index], updated_centers[index]) for index in range(len(updated_centers))]);    # Fast solution
               
             centers = updated_centers;
           
@@ -393,7 +406,7 @@ class xmeans:
           
         for index_cluster in range(0, len(clusters), 1):
             for index_object in clusters[index_cluster]:
-                sigma_sqrt += euclidean_distance_sqrt(self.__pointer_data[index_object], centers[index_cluster]);
+                sigma_sqrt += euclidean_distance_sqrd(self.__pointer_data[index_object], centers[index_cluster]);
 
             N += len(clusters[index_cluster]);
       
@@ -438,7 +451,7 @@ class xmeans:
               
             for index in range(len(centers)):
                 # dist = euclidean_distance(data[index_point], centers[index]);         # Slow solution
-                dist = euclidean_distance_sqrt(self.__pointer_data[index_point], centers[index]);      # Fast solution
+                dist = euclidean_distance_sqrd(self.__pointer_data[index_point], centers[index]);      # Fast solution
                   
                 if ( (dist < dist_optim) or (index is 0)):
                     index_optim = index;

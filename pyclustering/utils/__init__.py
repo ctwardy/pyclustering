@@ -189,7 +189,7 @@ def knearest(points, k):
     for i in range(len(points)):
         candidates = [];
         for j in range(i + i, len(points), 1):
-            distance = euclidean_distance_sqrt(points[i], points[j]);
+            distance = euclidean_distance_sqrd(points[i], points[j]);
             if (len(candidates) < k):
                 candidates.append((j, distance));
             else:
@@ -284,7 +284,7 @@ def median(points, indexes = None):
     for index_candidate in range_points:
         distance_candidate = 0.0;
         for index in range_points:
-            distance_candidate += euclidean_distance_sqrt(points[index_candidate], points[index]);
+            distance_candidate += euclidean_distance_sqrd(points[index_candidate], points[index]);
         
         if (distance_candidate < distance):
             distance = distance_candidate;
@@ -313,11 +313,11 @@ def euclidean_distance(a, b):
     
     """
     
-    distance = euclidean_distance_sqrt(a, b);
+    distance = euclidean_distance_sqrd(a, b);
     return distance**(0.5);
 
 
-def euclidean_distance_sqrt(a, b):
+def euclidean_distance_sqrd(a, b):
     """!
     @brief Calculate square Euclidian distance between vector a and b.
     
@@ -331,11 +331,7 @@ def euclidean_distance_sqrt(a, b):
     if ( ((type(a) == float) and (type(b) == float)) or ((type(a) == int) and (type(b) == int)) ):
         return (a - b)**2.0;
     
-    distance = 0.0;
-    for i in range(0, len(a)):
-        distance += (a[i] - b[i])**2.0;
-        
-    return distance;
+    return sum([(x-y)**2 for x, y in zip(a,b)])
 
 
 def manhattan_distance(a, b):
@@ -351,14 +347,8 @@ def manhattan_distance(a, b):
     
     if ( ((type(a) == float) and (type(b) == float)) or ((type(a) == int) and (type(b) == int)) ):
         return abs(a - b);
-    
-    distance = 0.0;
-    dimension = len(a);
-    
-    for i in range(0, dimension):
-        distance += abs(a[i] - b[i]);
-    
-    return distance;
+
+    return sum([abs(x - y) for x, y in zip(a, b)])
 
 
 def average_inter_cluster_distance(cluster1, cluster2, data = None):
@@ -382,11 +372,11 @@ def average_inter_cluster_distance(cluster1, cluster2, data = None):
     if (data is None):
         for i in range(len(cluster1)):
             for j in range(len(cluster2)):
-                distance += euclidean_distance_sqrt(cluster1[i], cluster2[j]);
+                distance += euclidean_distance_sqrd(cluster1[i], cluster2[j]);
     else:
         for i in range(len(cluster1)):
             for j in range(len(cluster2)):
-                distance += euclidean_distance_sqrt(data[ cluster1[i] ], data[ cluster2[j] ]);
+                distance += euclidean_distance_sqrd(data[cluster1[i]], data[cluster2[j]]);
     
     distance /= float(len(cluster1) * len(cluster2));
     return distance ** 0.5;
@@ -434,7 +424,7 @@ def average_intra_cluster_distance(cluster1, cluster2, data = None):
             
 
             
-            distance += euclidean_distance_sqrt(first_point, second_point);
+            distance += euclidean_distance_sqrd(first_point, second_point);
     
     distance /= float( (len(cluster1) + len(cluster2)) * (len(cluster1) + len(cluster2) - 1.0) );
     return distance ** 0.5;
@@ -494,21 +484,21 @@ def variance_increase_distance(cluster1, cluster2, data = None):
     
     for i in range(len(cluster1)):
         if (data is None):
-            distance_cluster1 += euclidean_distance_sqrt(cluster1[i], member_cluster1);
-            distance_general += euclidean_distance_sqrt(cluster1[i], member_cluster_general);
+            distance_cluster1 += euclidean_distance_sqrd(cluster1[i], member_cluster1);
+            distance_general += euclidean_distance_sqrd(cluster1[i], member_cluster_general);
             
         else:
-            distance_cluster1 += euclidean_distance_sqrt(data[ cluster1[i] ], member_cluster1);
-            distance_general += euclidean_distance_sqrt(data[ cluster1[i] ], member_cluster_general);
+            distance_cluster1 += euclidean_distance_sqrd(data[cluster1[i]], member_cluster1);
+            distance_general += euclidean_distance_sqrd(data[cluster1[i]], member_cluster_general);
     
     for j in range(len(cluster2)):
         if (data is None):
-            distance_cluster2 += euclidean_distance_sqrt(cluster2[j], member_cluster2);
-            distance_general += euclidean_distance_sqrt(cluster2[j], member_cluster_general);
+            distance_cluster2 += euclidean_distance_sqrd(cluster2[j], member_cluster2);
+            distance_general += euclidean_distance_sqrd(cluster2[j], member_cluster_general);
             
         else:
-            distance_cluster2 += euclidean_distance_sqrt(data[ cluster2[j] ], member_cluster2);
-            distance_general += euclidean_distance_sqrt(data[ cluster2[j] ], member_cluster_general);
+            distance_cluster2 += euclidean_distance_sqrd(data[cluster2[j]], member_cluster2);
+            distance_general += euclidean_distance_sqrd(data[cluster2[j]], member_cluster_general);
     
     return distance_general - distance_cluster1 - distance_cluster2;
 

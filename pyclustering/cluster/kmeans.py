@@ -30,7 +30,7 @@ import pyclustering.core.kmeans_wrapper as wrapper;
 
 from pyclustering.cluster.encoder import type_encoding;
 
-from pyclustering.utils import euclidean_distance_sqrt, list_math_addition, list_math_division_number;
+from pyclustering.utils import euclidean_distance_sqrd, list_math_addition, list_math_division_number;
 
 
 class kmeans:
@@ -122,7 +122,7 @@ class kmeans:
                 updated_centers = self.__update_centers();  # changes should be calculated before asignment
              
                 #changes = max([euclidean_distance(self.__centers[index], updated_centers[index]) for index in range(len(self.__centers))]);        # Slow solution
-                changes = max([euclidean_distance_sqrt(self.__centers[index], updated_centers[index]) for index in range(len(updated_centers))]);    # Fast solution
+                changes = max([euclidean_distance_sqrd(self.__centers[index], updated_centers[index]) for index in range(len(updated_centers))]);    # Fast solution
                  
                 self.__centers = updated_centers;
 
@@ -179,7 +179,7 @@ class kmeans:
              
             for index in range(len(self.__centers)):
                 # dist = euclidean_distance(data[index_point], centers[index]);         # Slow solution
-                dist = euclidean_distance_sqrt(self.__pointer_data[index_point], self.__centers[index]);      # Fast solution
+                dist = euclidean_distance_sqrd(self.__pointer_data[index_point], self.__centers[index]);      # Fast solution
                  
                 if ( (dist < dist_optim) or (index is 0)):
                     index_optim = index;

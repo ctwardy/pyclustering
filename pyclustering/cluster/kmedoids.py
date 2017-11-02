@@ -29,7 +29,7 @@
 
 from pyclustering.cluster.encoder import type_encoding;
 
-from pyclustering.utils import euclidean_distance_sqrt, median;
+from pyclustering.utils import euclidean_distance_sqrd, median;
 
 import pyclustering.core.kmedoids_wrapper as wrapper;
 
@@ -108,7 +108,7 @@ class kmedoids:
                 self.__clusters = self.__update_clusters();
                 updated_medoids, update_medoid_indexes = self.__update_medoids();  # changes should be calculated before asignment
              
-                changes = max([euclidean_distance_sqrt(self.__medoids[index], updated_medoids[index]) for index in range(len(updated_medoids))]);    # Fast solution
+                changes = max([euclidean_distance_sqrd(self.__medoids[index], updated_medoids[index]) for index in range(len(updated_medoids))]);    # Fast solution
                  
                 self.__medoids = updated_medoids;
                 self.__medoid_indexes = update_medoid_indexes;
@@ -169,7 +169,7 @@ class kmedoids:
             dist_optim = float('Inf');
             
             for index in range(len(self.__medoids)):
-                dist = euclidean_distance_sqrt(self.__pointer_data[index_point], self.__medoids[index]);
+                dist = euclidean_distance_sqrd(self.__pointer_data[index_point], self.__medoids[index]);
                 
                 if ( (dist < dist_optim) or (index is 0)):
                     index_optim = index;

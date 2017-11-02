@@ -40,7 +40,7 @@ from enum import IntEnum;
 
 from scipy.spatial import Delaunay;
 
-from pyclustering.utils import euclidean_distance_sqrt, average_neighbor_distance, heaviside, draw_dynamics;
+from pyclustering.utils import euclidean_distance_sqrd, average_neighbor_distance, heaviside, draw_dynamics;
 
 
 class type_conn(IntEnum):
@@ -430,7 +430,7 @@ class cnn_network:
         
         """
         
-        distance = euclidean_distance_sqrt(stimulus1, stimulus2);
+        distance = euclidean_distance_sqrd(stimulus1, stimulus2);
         return math.exp(-distance / (2.0 * self.__average_distance));
 
     
