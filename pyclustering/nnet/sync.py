@@ -202,52 +202,52 @@ class sync_dynamic:
         
         if (self._ccore_sync_dynamic_pointer is not None):
             ensembles = wrapper.sync_dynamic_allocate_sync_ensembles(self._ccore_sync_dynamic_pointer, tolerance, iteration);
-            
+
             if (indexes is not None):
                 for ensemble in ensembles:
                     for index in range(len(ensemble)):
                         ensemble[index] = indexes[ ensemble[index] ];
-                
+
             return ensembles;
-        
+
         if ( (self._dynamic is None) or (len(self._dynamic) == 0) ):
             return [];
-        
+
         number_oscillators = len(self._dynamic[0]);
         last_state = None;
-        
+
         if (iteration is None):
             last_state = self._dynamic[len(self._dynamic) - 1];
         else:
             last_state = self._dynamic[iteration];
-        
+
         clusters = [];
         if (number_oscillators > 0):
             clusters.append([0]);
-        
+
         for i in range(1, number_oscillators, 1):
             cluster_allocated = False;
+            last_state_shifted = abs(last_state[i] - 2 * pi);
+
             for cluster in clusters:
                 for neuron_index in cluster:
-                    last_state_shifted = abs(last_state[i] - 2 * pi);
-                    
                     if ( ( (last_state[i] < (last_state[neuron_index] + tolerance)) and (last_state[i] > (last_state[neuron_index] - tolerance)) ) or
                          ( (last_state_shifted < (last_state[neuron_index] + tolerance)) and (last_state_shifted > (last_state[neuron_index] - tolerance)) ) ):
                         cluster_allocated = True;
-                        
+
                         real_index = i;
                         if (indexes is not None):
                             real_index = indexes[i];
-                        
+
                         cluster.append(real_index);
                         break;
-                
-                if (cluster_allocated == True):
+
+                if cluster_allocated:
                     break;
-            
-            if (cluster_allocated == False):
+
+            if not cluster_allocated:
                 clusters.append([i]);
-        
+
         return clusters;
     
     
@@ -837,10 +837,10 @@ class sync_network(network):
         
         index = argv;
         phase = 0;
-        for k in range(0, self._num_osc):
+        for k in range(self._num_osc):
             if (self.has_connection(index, k) == True):
                 phase += math.sin(self._phases[k] - teta);
-            
+
         return ( self._freq[index] + (phase * self._weight / self._num_osc) );
 
 
@@ -886,49 +886,48 @@ class sync_network(network):
         if (self._ccore_network_pointer is not None):
             ccore_instance_dynamic = wrapper.sync_simulate_dynamic(self._ccore_network_pointer, order, solution, collect_dynamic, step, int_step, threshold_changes);
             return sync_dynamic(None, None, ccore_instance_dynamic);
-        
+
         # For statistics and integration
         time_counter = 0;
-        
+
         # Prevent infinite loop. It's possible when required state cannot be reached.
         previous_order = 0;
         current_order = self.sync_local_order();
-        
+
         # If requested input dynamics
         dyn_phase = [];
         dyn_time = [];
         if (collect_dynamic == True):
             dyn_phase.append(self._phases);
             dyn_time.append(0);
-        
+
         # Execute until sync state will be reached
         while (current_order < order):
             # update states of oscillators
             self._phases = self._calculate_phases(solution, time_counter, step, int_step);
-            
+
             # update time
             time_counter += step;
-            
+
             # if requested input dynamic
             if (collect_dynamic == True):
                 dyn_phase.append(self._phases);
                 dyn_time.append(time_counter);
-                
+
             # update orders
             previous_order = current_order;
             current_order = self.sync_local_order();
-            
+
             # hang prevention
             if (abs(current_order - previous_order) < threshold_changes):
                 # print("Warning: sync_network::simulate_dynamic - simulation is aborted due to low level of convergence rate (order = " + str(current_order) + ").");
                 break;
-            
+
         if (collect_dynamic != True):
             dyn_phase.append(self._phases);
             dyn_time.append(time_counter);
 
-        output_sync_dynamic = sync_dynamic(dyn_phase, dyn_time, None);
-        return output_sync_dynamic;
+        return sync_dynamic(dyn_phase, dyn_time, None);
 
 
     def simulate_static(self, steps, time, solution = solve_type.FAST, collect_dynamic = False):
@@ -951,32 +950,31 @@ class sync_network(network):
         if (self._ccore_network_pointer is not None):
             ccore_instance_dynamic = wrapper.sync_simulate_static(self._ccore_network_pointer, steps, time, solution, collect_dynamic);
             return sync_dynamic(None, None, ccore_instance_dynamic);
-        
+
         dyn_phase = [];
         dyn_time = [];
-        
+
         if (collect_dynamic == True):
             dyn_phase.append(self._phases);
             dyn_time.append(0);
-        
+
         step = time / steps;
         int_step = step / 10.0;
-        
+
         for t in numpy.arange(step, time + step, step):
             # update states of oscillators
             self._phases = self._calculate_phases(solution, t, step, int_step);
-            
+
             # update states of oscillators
             if (collect_dynamic == True):
                 dyn_phase.append(self._phases);
                 dyn_time.append(t);
-        
+
         if (collect_dynamic != True):
             dyn_phase.append(self._phases);
             dyn_time.append(time);
-                        
-        output_sync_dynamic = sync_dynamic(dyn_phase, dyn_time);
-        return output_sync_dynamic;
+
+        return sync_dynamic(dyn_phase, dyn_time);
 
 
     def _calculate_phases(self, solution, t, step, int_step):

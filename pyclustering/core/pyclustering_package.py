@@ -132,10 +132,7 @@ class package_builder:
 
 
     def __is_container_type(self, value):
-        if (isinstance(value, list) or isinstance(value, tuple)):
-            return True;
-        
-        return False;
+        return (isinstance(value, list) or isinstance(value, tuple))
 
 
     def __get_type(self, pyclustering_data_type):
@@ -242,15 +239,15 @@ class package_extractor:
     
     def __unpack_data(self, pointer_package, pointer_data, type_package):
         result = [];
-        
-        for index in range(0, pointer_package[0].size):
+
+        for index in range(pointer_package[0].size):
             if (type_package == pyclustering_type_data.PYCLUSTERING_TYPE_LIST):
                 pointer_package = cast(pointer_data[index], (POINTER(pyclustering_package)));
                 result.append(self.__extract_data(pointer_package));
-            
+
             else:
                 result.append(pointer_data[index]);
-        
+
         return result;
 
 

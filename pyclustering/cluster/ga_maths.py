@@ -61,9 +61,7 @@ class ga_math:
         """!
         """
 
-        centres = ga_math.calc_centers(chromosomes, data, count_clusters)
-
-        return centres
+        return ga_math.calc_centers(chromosomes, data, count_clusters)
 
     @staticmethod
     def calc_centers(chromosomes, data, count_clusters=None):
@@ -109,11 +107,7 @@ class ga_math:
         #
         for _idx in range(len(inv_fitness)):
 
-            if fitness[_idx] != 0.0:
-                inv_fitness[_idx] = 1.0 / fitness[_idx]
-            else:
-                inv_fitness[_idx] = 0.0
-
+            inv_fitness[_idx] = 1.0 / fitness[_idx] if fitness[_idx] != 0.0 else 0.0
         # Initialize vector
         prob = np.zeros(len(fitness))
 
@@ -147,7 +141,7 @@ class ga_math:
 
         # for all elements or if a elem not equal to the last elem
         for _ in range(-1, -len(probabilities) - 1):
-            if probabilities[back_idx] == last_val:
+            if last_val == last_val:
                 probabilities[back_idx] = 1
             else:
                 break

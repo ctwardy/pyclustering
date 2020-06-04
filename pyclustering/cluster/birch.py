@@ -181,10 +181,10 @@ class birch:
         
         self.__clusters = [ [] for _ in range(self.__number_clusters) ];
         self.__noise = [];
-        
-        for index_point in range(0, len(self.__pointer_data)):
+
+        for index_point in range(len(self.__pointer_data)):
             (_, cluster_index) = self.__get_nearest_feature(self.__pointer_data[index_point], self.__features);
-            
+
             self.__clusters[cluster_index].append(index_point);
     
     
@@ -196,10 +196,10 @@ class birch:
         
         """
         
-        for index_point in range(0, len(self.__pointer_data)):
+        for index_point in range(len(self.__pointer_data)):
             point = self.__pointer_data[index_point];
             self.__tree.insert_cluster( [ point ] );
-            
+
             if (self.__tree.amount_entries > self.__entry_size_limit):
                 self.__tree = self.__rebuild_tree(index_point);
         
@@ -218,28 +218,28 @@ class birch:
         
         rebuild_result = False;
         increased_diameter = self.__tree.threshold * self.__diameter_multiplier;
-        
+
         tree = None;
-        
-        while(rebuild_result is False):
+
+        while not rebuild_result:
             # increase diameter and rebuild tree
             if (increased_diameter == 0.0):
                 increased_diameter = 1.0;
-            
+
             # build tree with update parameters
             tree = cftree(self.__tree.branch_factor, self.__tree.max_entries, increased_diameter, self.__tree.type_measurement);
-            
-            for index_point in range(0, index_point + 1):
+
+            for index_point in range(index_point + 1):
                 point = self.__pointer_data[index_point];
                 tree.insert_cluster([point]);
-            
+
                 if (tree.amount_entries > self.__entry_size_limit):
                     increased_diameter *= self.__diameter_multiplier;
                     continue;
-            
+
             # Re-build is successful.
             rebuild_result = True;
-        
+
         return tree;
     
     
@@ -254,19 +254,19 @@ class birch:
         minimum_distance = float("Inf");
         index1 = 0;
         index2 = 0;
-        
-        for index_candidate1 in range(0, len(self.__features)):
+
+        for index_candidate1 in range(len(self.__features)):
             feature1 = self.__features[index_candidate1];
             for index_candidate2 in range(index_candidate1 + 1, len(self.__features)):
                 feature2 = self.__features[index_candidate2];
-                
+
                 distance = feature1.get_distance(feature2, self.__measurement_type);
                 if (distance < minimum_distance):
                     minimum_distance = distance;
-                    
+
                     index1 = index_candidate1;
                     index2 = index_candidate2;
-        
+
         return [index1, index2];
     
     
@@ -283,13 +283,13 @@ class birch:
         
         minimum_distance = float("Inf");
         index_nearest_feature = -1;
-        
-        for index_entry in range(0, len(feature_collection)):
+
+        for index_entry in range(len(feature_collection)):
             point_entry = cfentry(1, linear_sum([ point ]), square_sum([ point ]));
-            
+
             distance = feature_collection[index_entry].get_distance(point_entry, self.__measurement_type);
             if (distance < minimum_distance):
                 minimum_distance = distance;
                 index_nearest_feature = index_entry;
-                
+
         return (minimum_distance, index_nearest_feature);

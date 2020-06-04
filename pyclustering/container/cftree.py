@@ -214,13 +214,13 @@ class cfentry:
         """
                 
         tolerance = 0.00001;
-        
+
         result = (self.__number_points == entry.number_points);
         result &= ( (self.square_sum + tolerance > entry.square_sum) and (self.square_sum - tolerance < entry.square_sum) );
-        
-        for index_dimension in range(0, len(self.linear_sum)):
+
+        for index_dimension in range(len(self.linear_sum)):
             result &= ( (self.linear_sum[index_dimension] + tolerance > entry.linear_sum[index_dimension]) and (self.linear_sum[index_dimension] - tolerance < entry.linear_sum[index_dimension]) );
-        
+
         return result;
     
     
@@ -269,11 +269,11 @@ class cfentry:
         
         if (self.__centroid is not None):
             return self.__centroid;
-        
+
         self.__centroid = [0] * len(self.linear_sum);
-        for index_dimension in range(0, len(self.linear_sum)):
+        for index_dimension in range(len(self.linear_sum)):
             self.__centroid[index_dimension] = self.linear_sum[index_dimension] / self.number_points;
-        
+
         return self.__centroid;
     
     
@@ -555,19 +555,19 @@ class non_leaf_node(cfnode):
         farthest_node1 = None;
         farthest_node2 = None;
         farthest_distance = 0;
-        
-        for i in range(0, len(self.successors)):
+
+        for i in range(len(self.successors)):
             candidate1 = self.successors[i];
-            
+
             for j in range(i + 1, len(self.successors)):
                 candidate2 = self.successors[j];
                 candidate_distance = candidate1.get_distance(candidate2, type_measurement);
-                
+
                 if (candidate_distance > farthest_distance):
                     farthest_distance = candidate_distance;
                     farthest_node1 = candidate1;
                     farthest_node2 = candidate2;        
-        
+
                     return [farthest_node1, farthest_node2];
     
     
@@ -584,19 +584,19 @@ class non_leaf_node(cfnode):
         nearest_node1 = None;
         nearest_node2 = None;
         nearest_distance = float("Inf");
-        
-        for i in range(0, len(self.successors)):
+
+        for i in range(len(self.successors)):
             candidate1 = self.successors[i];
-            
+
             for j in range(i + 1, len(self.successors)):
                 candidate2 = self.successors[j];
                 candidate_distance = candidate1.get_distance(candidate2, type_measurement);
-                
+
                 if (candidate_distance < nearest_distance):
                     nearest_distance = candidate_distance;
                     nearest_node1 = candidate1;
                     nearest_node2 = candidate2;
-        
+
         return [nearest_node1, nearest_node2];
 
 
@@ -706,19 +706,19 @@ class leaf_node(cfnode):
         farthest_entity1 = None;
         farthest_entity2 = None;
         farthest_distance = 0;
-        
-        for i in range(0, len(self.entries)):
+
+        for i in range(len(self.entries)):
             candidate1 = self.entries[i];
-            
+
             for j in range(i + 1, len(self.entries)):
                 candidate2 = self.entries[j];
                 candidate_distance = candidate1.get_distance(candidate2, type_measurement);
-                
+
                 if (candidate_distance > farthest_distance):
                     farthest_distance = candidate_distance;
                     farthest_entity1 = candidate1;
                     farthest_entity2 = candidate2;
-        
+
         return [farthest_entity1, farthest_entity2];
     
     
@@ -735,12 +735,12 @@ class leaf_node(cfnode):
         
         minimum_distance = float('Inf');
         nearest_index = 0;
-        
-        for candidate_index in range(0, len(self.entries)):
+
+        for candidate_index in range(len(self.entries)):
             candidate_distance = self.entries[candidate_index].get_distance(entry, type_measurement);
             if (candidate_distance < minimum_distance):
                 nearest_index = candidate_index;
-        
+
         return nearest_index;
     
     
@@ -970,15 +970,15 @@ class cftree:
         
         if (search_node is None):
             search_node = self.__root;
-        
+
         nearest_node = search_node;
-        
-        if (search_node.type == cfnode_type.CFNODE_NONLEAF):
+
+        if nearest_node.type == cfnode_type.CFNODE_NONLEAF:
             min_key = lambda child_node: child_node.feature.get_distance(entry, self.__type_measurement);
             nearest_child_node = min(search_node.successors, key = min_key);
-            
+
             nearest_node = self.find_nearest_leaf(entry, nearest_child_node);
-        
+
         return nearest_node;
     
     
@@ -1226,16 +1226,16 @@ class cftree:
         
         """
         visualizer = cluster_visualizer();
-        
+
         print("amount of nodes: ", self.__amount_nodes);
-        
+
         if (data is not None):
             visualizer.append_cluster(data, marker = 'x');
-        
-        for level in range(0, self.height):
+
+        for level in range(self.height):
             level_nodes = self.get_level_nodes(level);
-            
+
             centers = [ node.feature.get_centroid() for node in level_nodes ];
             visualizer.append_cluster(centers, None, markersize = (self.height - level + 1) * 5);
-        
+
         visualizer.show();

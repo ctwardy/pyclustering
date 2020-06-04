@@ -43,7 +43,7 @@ class SyncIntegrationTest(unittest.TestCase):
 
     def testCreationDeletionByCore(self):
         # Crash occurs in case of memory leak
-        for _ in range(0, 15):
+        for _ in range(15):
             network = sync_network(4096, 1, type_conn = conn_type.ALL_TO_ALL, ccore = True);
             del network;
 

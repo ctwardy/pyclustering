@@ -69,7 +69,7 @@ def simple_gaussian_data_clustering(cluster_sizes):
                         'syncsom':         [],
                         'xmeans':          [],
                        };
-                        
+
     algorithms_proc = { 
                         'agglomerative':    process_agglomerative,
                         'birch':            process_birch,
@@ -86,37 +86,34 @@ def simple_gaussian_data_clustering(cluster_sizes):
                         'syncsom':          process_syncsom,
                         'xmeans':           process_xmeans,
                       };
-    
+
     datasizes = [];
-    
+
+    global CURRENT_CLUSTER_SIZE;
     for cluster_size in cluster_sizes:
         print("processing clusters with size:", cluster_size);
-        
-        global CURRENT_CLUSTER_SIZE;
+
         CURRENT_CLUSTER_SIZE = cluster_size;
-        
+
         # generate data sets
         dataset = [];
         for mean in range(0, NUMBER_CLUSTERS, 1):
             dataset += [ [random() + (mean * 5), random() + (mean * 5)] for _ in range(cluster_size) ];
-        
+
         datasizes.append(len(dataset));
-            
+
         # process data and fix time of execution
-        for key in algorithms_proc:
-            summary_result = 0;
+        for key, value in algorithms_proc.items():
             print("processing clusters with size:", cluster_size, "by", key);
-            
-            for _ in range(REPEAT_MEASURE):
-                summary_result += algorithms_proc[key](dataset);
-            
+
+            summary_result = sum(value(dataset) for _ in range(REPEAT_MEASURE));
             algorithms_times[key].append( summary_result / REPEAT_MEASURE );
-    
+
     print(datasizes);
     for key in algorithms_times:
         print(key, ":", algorithms_times[key]);
         plt.plot(datasizes, algorithms_times[key], label = key, linestyle = '-');
-    
+
     plt.show();
 
 

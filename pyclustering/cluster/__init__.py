@@ -146,41 +146,34 @@ class cluster_visualizer:
         
         if (len(cluster) == 0):
             return;
-        
+
         if (canvas > self.__number_canvases):
             raise NameError('Canvas does ' + canvas + ' not exists.');
-        
+
         if (color is None):
             index_color = len(self.__canvas_clusters[canvas]) % len(color_list.TITLES);
             color = color_list.TITLES[index_color];
-        
+
         added_canvas_descriptor = canvas_cluster_descr(cluster, data, marker, markersize, color);
         self.__canvas_clusters[canvas].append( added_canvas_descriptor );
-        
+
         dimension = 0;
-        if (data is None):
-            dimension = len(cluster[0]);
-            if (self.__canvas_dimensions[canvas] is None):
-                self.__canvas_dimensions[canvas] = dimension;
-            elif (self.__canvas_dimensions[canvas] != dimension):
-                raise NameError('Only clusters with the same dimension of objects can be displayed on canvas.');
-                
-        else:
-            dimension = len(data[0]);
-            if (self.__canvas_dimensions[canvas] is None):
-                self.__canvas_dimensions[canvas] = dimension;
-            elif (self.__canvas_dimensions[canvas] != dimension):
-                raise NameError('Only clusters with the same dimension of objects can be displayed on canvas.');
+        dimension = len(cluster[0]) if (data is None) else len(data[0])
+        if (self.__canvas_dimensions[canvas] is None):
+            self.__canvas_dimensions[canvas] = dimension;
+        elif (self.__canvas_dimensions[canvas] != dimension):
+            raise NameError('Only clusters with the same dimension of objects can be displayed on canvas.');
 
         if ( (dimension < 1) and (dimension > 3) ):
             raise NameError('Only objects with size dimension 1 (1D plot), 2 (2D plot) or 3 (3D plot) can be displayed.');
-        
-        if (markersize is None):
-            if ( (dimension == 1) or (dimension == 2) ):
+
+        if dimension in [1, 2]:
+            if (markersize is None):
                 added_canvas_descriptor.markersize = self.__default_2d_marker_size;
-            elif (dimension == 3):
+        elif dimension == 3:
+            if (markersize is None):
                 added_canvas_descriptor.markersize = self.__default_3d_marker_size;
-        
+
         return len(self.__canvas_clusters[canvas]) - 1;
     
     
@@ -267,61 +260,50 @@ class cluster_visualizer:
 
         
         cluster_figure = None;
-        
+
         canvas_shift = shift;
         if (canvas_shift is None):
-            if (figure is not None):
-                canvas_shift = len(figure.get_axes());
-            else:
-                canvas_shift = 0;
-            
-        if (figure is not None):
-            cluster_figure = figure;
-        else:
-            cluster_figure = plt.figure();
-        
+            canvas_shift = len(figure.get_axes()) if (figure is not None) else 0
+        cluster_figure = figure if (figure is not None) else plt.figure()
         maximum_cols = self.__size_row;
         maximum_rows = math.ceil( (self.__number_canvases + canvas_shift) / maximum_cols);
-        
+
         grid_spec = gridspec.GridSpec(maximum_rows, maximum_cols);
 
         for index_canvas in range(len(self.__canvas_clusters)):
             canvas_data = self.__canvas_clusters[index_canvas];
             if (len(canvas_data) == 0):
                 continue;
-        
+
             dimension = self.__canvas_dimensions[index_canvas];
-            
+
             #ax = axes[real_index];
-            if ( (dimension == 1) or (dimension == 2) ):
+            if dimension in [1, 2]:
                 ax = cluster_figure.add_subplot(grid_spec[index_canvas + canvas_shift]);
             else:
                 ax = cluster_figure.add_subplot(grid_spec[index_canvas + canvas_shift], projection='3d');
-            
-            if (len(canvas_data) == 0):
-                plt.setp(ax, visible = False);
-            
+
             for cluster_descr in canvas_data:
                 self.__draw_canvas_cluster(ax, dimension, cluster_descr);
-                
+
                 for attribute_descr in cluster_descr.attributes:
                     self.__draw_canvas_cluster(ax, dimension, attribute_descr);
-            
+
             if (visible_axis is True):
                 ax.xaxis.set_ticklabels([]);
                 ax.yaxis.set_ticklabels([]);
-                
+
                 if (dimension == 3):
                     ax.zaxis.set_ticklabels([]);
-            
+
             if (self.__canvas_titles[index_canvas] is not None):
                 ax.set_title(self.__canvas_titles[index_canvas]);
-            
+
             ax.grid(visible_grid);
-        
+
         if (display is True):
             plt.show();
-        
+
         return cluster_figure;
     
     

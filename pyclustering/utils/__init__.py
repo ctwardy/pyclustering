@@ -74,9 +74,8 @@ def read_image(filename):
     """
     
     with Image.open(filename) as image_source:
-        data = [pixel for pixel in image_source.getdata()];
-        return data;
-    
+        return [pixel for pixel in image_source.getdata()];
+
     return [];
 
 
@@ -247,16 +246,12 @@ def centroid(points, indexes = None):
     
     dimension = len(points[0]);
     centroid_value = [0.0] * dimension;
-    
+
     range_points = None;
-    if (indexes is None):
-        range_points = range(len(points));
-    else:
-        range_points = indexes;
-    
+    range_points = range(len(points)) if (indexes is None) else indexes
     for index_point in range_points:
         centroid_value = list_math_addition(centroid_value, points[index_point]);
-    
+
     centroid_value = list_math_division_number(centroid_value, len(range_points));
     return centroid_value;
 
@@ -274,22 +269,18 @@ def median(points, indexes = None):
     
     index_median = None;
     distance = float('Inf');
-    
+
     range_points = None;
-    if (indexes is None):
-        range_points = range(len(points));
-    else:
-        range_points = indexes;
-    
+    range_points = range(len(points)) if (indexes is None) else indexes
     for index_candidate in range_points:
         distance_candidate = 0.0;
         for index in range_points:
             distance_candidate += euclidean_distance_sqrd(points[index_candidate], points[index]);
-        
+
         if (distance_candidate < distance):
             distance = distance_candidate;
             index_median = index_candidate;
-    
+
     return index_median;
 
 
@@ -330,8 +321,8 @@ def euclidean_distance_sqrd(a, b):
     
     if ( ((type(a) == float) and (type(b) == float)) or ((type(a) == int) and (type(b) == int)) ):
         return (a - b)**2.0;
-    
-    return sum([(x-y)**2 for x, y in zip(a,b)])
+
+    return sum((x-y)**2 for x, y in zip(a,b))
 
 
 def manhattan_distance(a, b):
@@ -348,7 +339,7 @@ def manhattan_distance(a, b):
     if ( ((type(a) == float) and (type(b) == float)) or ((type(a) == int) and (type(b) == int)) ):
         return abs(a - b);
 
-    return sum([abs(x - y) for x, y in zip(a, b)])
+    return sum(abs(x - y) for x, y in zip(a, b))
 
 
 def average_inter_cluster_distance(cluster1, cluster2, data = None):
@@ -368,16 +359,14 @@ def average_inter_cluster_distance(cluster1, cluster2, data = None):
     """
     
     distance = 0.0;
-    
-    if (data is None):
-        for i in range(len(cluster1)):
-            for j in range(len(cluster2)):
-                distance += euclidean_distance_sqrd(cluster1[i], cluster2[j]);
-    else:
-        for i in range(len(cluster1)):
-            for j in range(len(cluster2)):
-                distance += euclidean_distance_sqrd(data[cluster1[i]], data[cluster2[j]]);
-    
+
+    for item_ in cluster1:
+        for item in cluster2:
+            if (data is None):
+                distance += euclidean_distance_sqrd(item_, item);
+            else:
+                distance += euclidean_distance_sqrd(data[item_], data[item]);
+
     distance /= float(len(cluster1) * len(cluster2));
     return distance ** 0.5;
 
@@ -399,33 +388,36 @@ def average_intra_cluster_distance(cluster1, cluster2, data = None):
     """
         
     distance = 0.0;
-    
+
     for i in range(len(cluster1) + len(cluster2)):
         for j in range(len(cluster1) + len(cluster2)):
             first_point = None;
             second_point = None;
-            
+
             if (data is None):
                 # the first point
-                if (i < len(cluster1)): first_point = cluster1[i];
-                else: first_point = cluster2[i - len(cluster1)];
-                
+                first_point = (
+                    cluster1[i]
+                    if (i < len(cluster1))
+                    else cluster2[i - len(cluster1)]
+                )
+
                 # the second point
                 if (j < len(cluster1)): second_point = cluster1[j];
                 else: second_point = cluster2[j - len(cluster1)];
-                
+
             else:
                 # the first point
                 if (i < len(cluster1)): first_point = data[ cluster1[i] ];
                 else: first_point = data[ cluster2[i - len(cluster1)] ];
-            
+
                 if (j < len(cluster1)): second_point = data[ cluster1[j] ];
                 else: second_point = data[ cluster2[j - len(cluster1)] ];    
-            
 
-            
+
+
             distance += euclidean_distance_sqrd(first_point, second_point);
-    
+
     distance /= float( (len(cluster1) + len(cluster2)) * (len(cluster1) + len(cluster2) - 1.0) );
     return distance ** 0.5;
 
@@ -449,57 +441,57 @@ def variance_increase_distance(cluster1, cluster2, data = None):
     # calculate local sum
     member_cluster1 = None;
     member_cluster2 = None;
-    
+
     if (data is None):
         member_cluster1 = [0.0] * len(cluster1[0]);
         member_cluster2 = [0.0] * len(cluster2[0]);
-        
+
     else:
         member_cluster1 = [0.0] * len(data[0]);
         member_cluster2 = [0.0] * len(data[0]);
-    
-    for i in range(len(cluster1)):
+
+    for item__ in cluster1:
         if (data is None):
-            member_cluster1 = list_math_addition(member_cluster1, cluster1[i]);
+            member_cluster1 = list_math_addition(member_cluster1, item__);
         else:
-            member_cluster1 = list_math_addition(member_cluster1, data[ cluster1[i] ]);
-    
-    
-    for j in range(len(cluster2)):
+            member_cluster1 = list_math_addition(member_cluster1, data[item__]);
+                
+
+    for item___ in cluster2:
         if (data is None):
-            member_cluster2 = list_math_addition(member_cluster2, cluster2[j]);
+            member_cluster2 = list_math_addition(member_cluster2, item___);
         else:
-            member_cluster2 = list_math_addition(member_cluster2, data[ cluster2[j] ]);
-    
+            member_cluster2 = list_math_addition(member_cluster2, data[item___]);
+
     member_cluster_general = list_math_addition(member_cluster1, member_cluster2);
     member_cluster_general = list_math_division_number(member_cluster_general, len(cluster1) + len(cluster2));
-    
+
     member_cluster1 = list_math_division_number(member_cluster1, len(cluster1));
     member_cluster2 = list_math_division_number(member_cluster2, len(cluster2));
-    
+
     # calculate global sum
     distance_general = 0.0;
     distance_cluster1 = 0.0;
     distance_cluster2 = 0.0;
-    
-    for i in range(len(cluster1)):
+
+    for item_ in cluster1:
         if (data is None):
-            distance_cluster1 += euclidean_distance_sqrd(cluster1[i], member_cluster1);
-            distance_general += euclidean_distance_sqrd(cluster1[i], member_cluster_general);
-            
+            distance_cluster1 += euclidean_distance_sqrd(item_, member_cluster1);
+            distance_general += euclidean_distance_sqrd(item_, member_cluster_general);
+
         else:
-            distance_cluster1 += euclidean_distance_sqrd(data[cluster1[i]], member_cluster1);
-            distance_general += euclidean_distance_sqrd(data[cluster1[i]], member_cluster_general);
-    
-    for j in range(len(cluster2)):
+            distance_cluster1 += euclidean_distance_sqrd(data[item_], member_cluster1);
+            distance_general += euclidean_distance_sqrd(data[item_], member_cluster_general);
+
+    for item in cluster2:
         if (data is None):
-            distance_cluster2 += euclidean_distance_sqrd(cluster2[j], member_cluster2);
-            distance_general += euclidean_distance_sqrd(cluster2[j], member_cluster_general);
-            
+            distance_cluster2 += euclidean_distance_sqrd(item, member_cluster2);
+            distance_general += euclidean_distance_sqrd(item, member_cluster_general);
+
         else:
-            distance_cluster2 += euclidean_distance_sqrd(data[cluster2[j]], member_cluster2);
-            distance_general += euclidean_distance_sqrd(data[cluster2[j]], member_cluster_general);
-    
+            distance_cluster2 += euclidean_distance_sqrd(data[item], member_cluster2);
+            distance_general += euclidean_distance_sqrd(data[item], member_cluster_general);
+
     return distance_general - distance_cluster1 - distance_cluster2;
 
 
@@ -569,9 +561,9 @@ def norm_vector(vector):
     length = 0.0;
     for component in vector:
         length += component * component;
-    
-    length = length ** 0.5;
-    
+
+    length **= 0.5;
+
     return length;
 
 
@@ -646,25 +638,25 @@ def extract_number_oscillations(osc_dyn, index = 0, amplitude_threshold = 1.0):
     waiting_differential = False;
     threshold_passed = False;
     high_level_trigger = True if (osc_dyn[0][index] > amplitude_threshold) else False;
-    
+
     for values in osc_dyn:
         if ( (values[index] >= amplitude_threshold) and (high_level_trigger is False) ):
             high_level_trigger = True;
             threshold_passed = True;
-        
+
         elif ( (values[index] < amplitude_threshold) and (high_level_trigger is True) ):
             high_level_trigger = False;
             threshold_passed = True;
-        
-        if (threshold_passed is True):
+
+        if threshold_passed:
             threshold_passed = False;
-            if (waiting_differential is True and high_level_trigger is False):
+            if waiting_differential and not high_level_trigger:
                 number_oscillations += 1;
                 waiting_differential = False;
 
             else:
                 waiting_differential = True;
-        
+
     return number_oscillations;
 
 
@@ -781,85 +773,87 @@ def draw_clusters(data, clusters, noise = [], marker_descr = '.', hide_axes = Fa
     """
     # Get dimension
     dimension = 0;
-    if ( (data is not None) and (clusters is not None) ):
+    if not (data is None or clusters is None):
         dimension = len(data[0]);
     elif ( (data is None) and (clusters is not None) ):
         dimension = len(clusters[0][0]);
     else:
         raise NameError('Data or clusters should be specified exactly.');
-    
+
     "Draw clusters"
     colors = [ 'red', 'blue', 'darkgreen', 'brown', 'violet', 
                'deepskyblue', 'darkgrey', 'lightsalmon', 'deeppink', 'yellow',
                'black', 'mediumspringgreen', 'orange', 'darkviolet', 'darkblue',
                'silver', 'lime', 'pink', 'gold', 'bisque' ];
-               
+
     if (len(clusters) > len(colors)):
         raise NameError('Impossible to represent clusters due to number of specified colors.');
-    
+
     fig = plt.figure();
-    
-    if (axes is None):
+
         # Check for dimensions
-        if ((dimension) == 1 or (dimension == 2)):
+    if dimension in [1, 2]:
+        if (axes is None):
             axes = fig.add_subplot(111);
-        elif (dimension == 3):
+    elif dimension == 3:
+        if (axes is None):
             axes = fig.gca(projection='3d');
-        else:
+    else:
+        if (axes is None):
             raise NameError('Drawer supports only 2d and 3d data representation');
-    
+
     color_index = 0;
     for cluster in clusters:
         color = colors[color_index];
         for item in cluster:
-            if (dimension == 1):
+            if dimension == 1:
                 if (data is None):
                     axes.plot(item[0], 0.0, color = color, marker = marker_descr);
                 else:
                     axes.plot(data[item][0], 0.0, color = color, marker = marker_descr);
-            
-            if (dimension == 2):
+
+            elif dimension == 2:
                 if (data is None):
                     axes.plot(item[0], item[1], color = color, marker = marker_descr);
                 else:
                     axes.plot(data[item][0], data[item][1], color = color, marker = marker_descr);
-                    
-            elif (dimension == 3):
+
+            elif dimension == 3:
                 if (data is None):
                     axes.scatter(item[0], item[1], item[2], c = color, marker = marker_descr);
                 else:
                     axes.scatter(data[item][0], data[item][1], data[item][2], c = color, marker = marker_descr);
-        
+
         color_index += 1;
-    
+
     for item in noise:
-        if (dimension == 1):
+        if dimension == 1:
             if (data is None):
                 axes.plot(item[0], 0.0, 'w' + marker_descr);
             else:
                 axes.plot(data[item][0], 0.0, 'w' + marker_descr);
 
-        if (dimension == 2):
+        elif dimension == 2:
             if (data is None):
                 axes.plot(item[0], item[1], 'w' + marker_descr);
             else:
                 axes.plot(data[item][0], data[item][1], 'w' + marker_descr);
-                
-        elif (dimension == 3):
+
+        elif dimension == 3:
             if (data is None):
                 axes.scatter(item[0], item[1], item[2], c = 'w', marker = marker_descr);
             else:
                 axes.scatter(data[item][0], data[item][1], data[item][2], c = 'w', marker = marker_descr);
-    
+
     axes.grid(True);
-    
+
     if (hide_axes is True):
         axes.xaxis.set_ticklabels([]);
         axes.yaxis.set_ticklabels([]);
-        
+
         if (dimension == 3):
             axes.zaxis.set_ticklabels([]);
-    
+
     if (display_result is True):
         plt.show();
 
@@ -887,66 +881,62 @@ def draw_dynamics(t, dyn, x_title = None, y_title = None, x_lim = None, y_lim = 
     """
          
     number_lines = 0;
-    
+
     stage_xlim = None;
     if (x_lim is not None):
         stage_xlim = x_lim;
     elif (len(t) > 0):
         stage_xlim = [0, t[len(t) - 1]];
-    
+
     if ( (isinstance(separate, bool) is True) and (separate is True) ):
-        if (isinstance(dyn[0], list) is True):
-            number_lines = len(dyn[0]);
-        else:
-            number_lines = 1;
-            
+        number_lines = len(dyn[0]) if (isinstance(dyn[0], list) is True) else 1
     elif (isinstance(separate, list) is True):
         number_lines = len(separate);
-        
+
     else:
         number_lines = 1;
-    
+
     dysplay_result = False;
     if (axes is None):
         dysplay_result = True;
         (fig, axes) = plt.subplots(number_lines, 1);
-    
+
     # Check if we have more than one dynamic
     if (isinstance(dyn[0], list) is True):
         num_items = len(dyn[0]);
         for index in range(0, num_items, 1):
             y = [item[index] for item in dyn];
-            
+
             if (number_lines > 1):
                 index_stage = -1;
-                
+
                 # Find required axes for the y
                 if (isinstance(separate, bool) is True):
                     index_stage = index;
-                    
+
                 elif (isinstance(separate, list) is True):
                     for index_group in range(0, len(separate), 1):
                         if (index in separate[index_group]): 
                             index_stage = index_group;
                             break;
-                
+
                 if (index_stage != -1):
                     if (index_stage != number_lines - 1):
                         axes[index_stage].get_xaxis().set_visible(False);
-                              
+
                     axes[index_stage].plot(t, y, 'b-', linewidth = 0.5); 
                     set_ax_param(axes[index_stage], x_title, y_title, stage_xlim, y_lim, x_labels, y_labels, True);
-                
+
             else:
                 axes.plot(t, y, 'b-', linewidth = 0.5);
                 set_ax_param(axes, x_title, y_title, stage_xlim, y_lim, x_labels, y_labels, True);
     else:
         axes.plot(t, dyn, 'b-', linewidth = 0.5);
         set_ax_param(axes, x_title, y_title, stage_xlim, y_lim, x_labels, y_labels, True);
-    
-    if (dysplay_result is True):
+
+    if dysplay_result:
         plt.show();
-    
+
     return axes;
 
 
@@ -966,31 +956,31 @@ def set_ax_param(ax, x_title = None, y_title = None, x_lim = None, y_lim = None,
     """
     from matplotlib.font_manager import FontProperties;
     from matplotlib import rcParams;
-    
-    if (_platform == "linux") or (_platform == "linux2"):
+
+    if _platform in ["linux", "linux2"]:
         rcParams['font.sans-serif'] = ['Liberation Serif'];
     else:
         rcParams['font.sans-serif'] = ['Arial'];
-        
+
     rcParams['font.size'] = 12;
-        
+
     surface_font = FontProperties();
-    if (_platform == "linux") or (_platform == "linux2"):
+    if _platform in ["linux", "linux2"]:
         surface_font.set_name('Liberation Serif');
     else:
         surface_font.set_name('Arial');
-        
+
     surface_font.set_size('12');
-    
+
     if (y_title is not None): ax.set_ylabel(y_title, fontproperties = surface_font);
     if (x_title is not None): ax.set_xlabel(x_title, fontproperties = surface_font);
-    
+
     if (x_lim is not None): ax.set_xlim(x_lim[0], x_lim[1]);
     if (y_lim is not None): ax.set_ylim(y_lim[0], y_lim[1]);
-    
+
     if (x_labels is False): ax.xaxis.set_ticklabels([]);
     if (y_labels is False): ax.yaxis.set_ticklabels([]);
-    
+
     ax.grid(grid);
 
 
@@ -1183,17 +1173,17 @@ def linear_sum(list_vector):
     dimension = 1;
     linear_sum = 0.0;
     list_representation = (type(list_vector[0]) == list);
-    
-    if (list_representation is True):
+
+    if list_representation:
         dimension = len(list_vector[0]);
         linear_sum = [0] * dimension;
-        
-    for index_element in range(0, len(list_vector)):
-        if (list_representation is True):
-            for index_dimension in range(0, dimension):
-                linear_sum[index_dimension] += list_vector[index_element][index_dimension];
+
+    for item in list_vector:
+        if list_representation:
+            for index_dimension in range(dimension):
+                linear_sum[index_dimension] += item[index_dimension];
         else:
-            linear_sum += list_vector[index_element];
+            linear_sum += item;
 
     return linear_sum;
 
@@ -1210,13 +1200,13 @@ def square_sum(list_vector):
     
     square_sum = 0.0;
     list_representation = (type(list_vector[0]) == list);
-        
-    for index_element in range(0, len(list_vector)):
-        if (list_representation is True):
-            square_sum += sum(list_math_multiplication(list_vector[index_element], list_vector[index_element]));
+
+    for item in list_vector:
+        if list_representation:
+            square_sum += sum(list_math_multiplication(item, item));
         else:
-            square_sum += list_vector[index_element] * list_vector[index_element];
-         
+            square_sum += item * item;
+
     return square_sum;
 
     

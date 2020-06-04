@@ -35,18 +35,18 @@ class RockTestTemplates:
     @staticmethod
     def templateLengthProcessData(path_to_file, radius, cluster_numbers, threshold, expected_cluster_length, ccore = False):
         sample = read_sample(path_to_file);
-        
+
         rock_instance = rock(sample, radius, cluster_numbers, threshold, ccore);
         rock_instance.process();
         clusters = rock_instance.get_clusters();
-        
-        length = sum([len(cluster) for cluster in clusters]);
+
+        length = sum(len(cluster) for cluster in clusters);
         assert len(sample) == length;
-        
+
         obtained_cluster_sizes = [len(cluster) for cluster in clusters];
         obtained_cluster_sizes.sort();
         expected_cluster_length.sort();
-        
+
         assert obtained_cluster_sizes == expected_cluster_length;
 
 

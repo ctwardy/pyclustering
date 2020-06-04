@@ -270,11 +270,11 @@ class clarans:
         
         """
         estimation = 0.0;
-        for index_cluster in range(0, len(self.__clusters)):
+        for index_cluster in range(len(self.__clusters)):
             cluster = self.__clusters[index_cluster];
             index_medoid = self.__current[index_cluster];
             for index_point in cluster:
                 estimation += euclidean_distance_sqrd(self.__pointer_data[index_point],
                                                       self.__pointer_data[index_medoid]);
-        
+
         return estimation;

@@ -55,32 +55,28 @@ class recognizer:
     
     def train(self):
         samples = [];
-        
+
         print("Digit images preprocessing...");
-        
+
         for index_digit in range(0, 10, 1):
             list_file_digit_sample = IMAGE_DIGIT_SAMPLES.GET_LIST_IMAGE_SAMPLES(index_digit);
-            
+
             for file_name in list_file_digit_sample:
                 data = read_image(file_name);
-                
+
                 image_pattern = rgb2gray(data);
-                
+
                 for index_pixel in range(len(image_pattern)):
-                    if (image_pattern[index_pixel] < 128):
-                        image_pattern[index_pixel] = 1;
-                    else:
-                        image_pattern[index_pixel] = 0;
-                
+                    image_pattern[index_pixel] = 1 if (image_pattern[index_pixel] < 128) else 0
                 samples += [ image_pattern ];
-        
-       
+
+
         print("SOM initialization...");
         self.__network = som(2, 5, type_conn.grid_four, None, True);
-        
+
         print("SOM training...");
         self.__network.train(samples, 300);
-        
+
         print("SOM is ready...");
         
     def recognize(self, input_pattern):
@@ -159,27 +155,29 @@ class digit_application:
 
     def __paint(self, event):
         # calculate square that is belong this click
-        if ( (event.x >= 0) and (event.x < 320) and (event.y >= 0) and (event.y < 320) ):
-            x1, y1 = math.floor(event.x / 10), math.floor(event.y / 10);
-            
-            self.__user_pattern[y1 * 32 + x1] = 1;
-            
-            index2 = (y1 + 1) * 32 + x1;
-            index3 = y1 * 32 + (x1 + 1);
-            index4 = (y1 + 1) * 32 + (x1 + 1);
-            
-            
-            if (index2 < len(self.__user_pattern)): 
-                self.__user_pattern[index2] = 1;
-            if (index3 < len(self.__user_pattern)): 
-                self.__user_pattern[index3] = 1;
-            if (index4 < len(self.__user_pattern)): 
-                self.__user_pattern[index4] = 1;
-            
-            display_x1, display_y1 = x1 * 10, y1 * 10;
-            display_x2, display_y2 = display_x1 + 20, display_y1 + 20;
-            
-            self.__widget.create_rectangle(display_x1, display_y1, display_x2, display_y2, fill = self.__color, width = 0);
+        if event.x < 0 or event.x >= 320 or event.y < 0 or event.y >= 320:
+            return
+
+        x1, y1 = math.floor(event.x / 10), math.floor(event.y / 10);
+
+        self.__user_pattern[y1 * 32 + x1] = 1;
+
+        index2 = (y1 + 1) * 32 + x1;
+        index3 = y1 * 32 + (x1 + 1);
+        index4 = (y1 + 1) * 32 + (x1 + 1);
+
+
+        if (index2 < len(self.__user_pattern)): 
+            self.__user_pattern[index2] = 1;
+        if (index3 < len(self.__user_pattern)): 
+            self.__user_pattern[index3] = 1;
+        if (index4 < len(self.__user_pattern)): 
+            self.__user_pattern[index4] = 1;
+
+        display_x1, display_y1 = x1 * 10, y1 * 10;
+        display_x2, display_y2 = display_x1 + 20, display_y1 + 20;
+
+        self.__widget.create_rectangle(display_x1, display_y1, display_x2, display_y2, fill = self.__color, width = 0);
 
     def click_train(self):
         self.__recognizer.train();

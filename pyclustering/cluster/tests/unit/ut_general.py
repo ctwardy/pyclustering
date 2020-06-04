@@ -165,8 +165,8 @@ class Test(unittest.TestCase):
      
     def testVisualizeHugeAmountClusters(self):
         visualizer = cluster_visualizer();
-         
-        data_clusters = [ [ [ random.random() ] ] for _ in range(0, 100) ];
+
+        data_clusters = [[ [ random.random() ] ] for _ in range(100)];
         visualizer.append_clusters(data_clusters);
 
         visualizer.show();

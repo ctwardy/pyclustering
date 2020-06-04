@@ -36,39 +36,35 @@ import math;
 
 def template_recognition_image(images, steps, time, corruption = 0.1):
     samples = [];
-    
+
     for file_name in images:
         data = read_image(file_name);
-                
+
         image_pattern = rgb2gray(data);
-                
+
         for index_pixel in range(len(image_pattern)):
-            if (image_pattern[index_pixel] < 128):
-                image_pattern[index_pixel] = 1;
-            else:
-                image_pattern[index_pixel] = -1;
-                
+            image_pattern[index_pixel] = 1 if (image_pattern[index_pixel] < 128) else -1
         samples += [ image_pattern ];
-    
+
     net = syncpr(len(samples[0]), 0.3, 0.3, ccore = True);
     net.train(samples);
-    
+
     # Recognize the each learned pattern
-    for i in range(len(samples)):
-        sync_output_dynamic = net.simulate(steps, time, samples[i], solve_type.RK4, True);
+    for sample in samples:
+        sync_output_dynamic = net.simulate(steps, time, sample, solve_type.RK4, True);
         syncpr_visualizer.show_output_dynamic(sync_output_dynamic);
         syncpr_visualizer.show_pattern(sync_output_dynamic, 10, 10);
-        
+
         # corrupt a little bit by black and white pixels
-        for _ in range( math.floor(len(samples[i]) * corruption) ):
+        for _ in range(math.floor(len(sample) * corruption)):
             random.seed();
-            random_pixel = math.floor(random.random() * len(samples[i]));
-            samples[i][random_pixel] = 1;
-            
-            random_pixel = math.floor(random.random() * len(samples[i]));
-            samples[i][random_pixel] = -1;
-        
-        sync_output_dynamic = net.simulate(steps, time, samples[i], solve_type.RK4, True);
+            random_pixel = math.floor(random.random() * len(sample));
+            sample[random_pixel] = 1;
+
+            random_pixel = math.floor(random.random() * len(sample));
+            sample[random_pixel] = -1;
+
+        sync_output_dynamic = net.simulate(steps, time, sample, solve_type.RK4, True);
         syncpr_visualizer.show_output_dynamic(sync_output_dynamic);
         syncpr_visualizer.show_pattern(sync_output_dynamic, 10, 10);
 

@@ -37,23 +37,17 @@ from pyclustering.samples.definitions import SIMPLE_SAMPLES, FCPS_SAMPLES;
 
 def template_clustering(radius, neighb, path, invisible_axes = False, ccore = True, show = True):
     sample = read_sample(path);
-    
+
     dbscan_instance = dbscan(sample, radius, neighb, ccore);
     (ticks, _) = timedcall(dbscan_instance.process);
-    
+
     clusters = dbscan_instance.get_clusters();
     noise = dbscan_instance.get_noise();
-    
+
     print([len(cluster) for cluster in clusters]);
-    
-    if (False):
-        visualizer = cluster_visualizer();
-        visualizer.append_clusters(clusters, sample);
-        visualizer.append_cluster(noise, sample, marker = 'x');
-        visualizer.show();
-    
+
     print("Sample: ", path, "\t\tExecution time: ", ticks, "\n");
-    
+
     return (sample, clusters, noise);
 
 

@@ -92,9 +92,7 @@ class GeneticAlgorithmClusteringUnitTest(unittest.TestCase):
 
     def test2Center8DataClustering(self):
 
-        data = [[0, 0], [0, 2], [2, 0], [2, 2]]
-        data.extend([[6, 0], [6, 2], [8, 0], [8, 2]])
-
+        data = [[0, 0], [0, 2], [2, 0], [2, 2], *[[6, 0], [6, 2], [8, 0], [8, 2]]]
         self.runGeneticAlgorithm(test_case_name=inspect.stack()[0][3],
                                  data=data,
                                  count_chromosomes=50,
@@ -105,8 +103,7 @@ class GeneticAlgorithmClusteringUnitTest(unittest.TestCase):
 
     def test4Center16DataClustering(self):
 
-        data = []
-        data.extend([[0, 0], [1, 0], [0, 1], [1, 1]])
+        data = list([[0, 0], [1, 0], [0, 1], [1, 1]])
         data.extend([[5, 0], [6, 0], [5, 1], [6, 1]])
         data.extend([[0, 5], [1, 5], [0, 6], [1, 6]])
         data.extend([[4, 4], [7, 4], [4, 7], [7, 7]])

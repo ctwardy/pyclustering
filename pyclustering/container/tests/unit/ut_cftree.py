@@ -41,15 +41,15 @@ from pyclustering.utils import euclidean_distance_sqrd, manhattan_distance, aver
 class CftreeUnitTest(unittest.TestCase):
     def templateCfClusterRepresentation(self, cluster, centroid, radius, diameter, tolerance):
         entry = cfentry(len(cluster), linear_sum(cluster), square_sum(cluster));
-           
+
         assertion_centroid = centroid;
         if (type(centroid) != list):
             assertion_centroid = [ centroid ];
-           
+
         if (type(centroid) == list):
-            for dimension in range(0, len(assertion_centroid)):
+            for dimension in range(len(assertion_centroid)):
                 assert (assertion_centroid[dimension] - tolerance < ( entry.get_centroid() )[dimension]) and (( entry.get_centroid() )[dimension] < assertion_centroid[dimension] + tolerance);
-           
+
         assert (radius - tolerance < entry.get_radius()) and (entry.get_radius() < radius + tolerance);
         assert (diameter - tolerance < entry.get_diameter()) and (entry.get_diameter() < diameter + tolerance);
            
@@ -228,15 +228,15 @@ class CftreeUnitTest(unittest.TestCase):
     def templateCfTreeLeafIntegrity(self, number_clusters, branching_factor, max_entries, threshold):
         clusters = [ [ [random() + j, random() + j] for i in range(10) ] for j in range(number_clusters) ];
         tree = cftree(branching_factor, max_entries, threshold);
-           
-        for index_cluster in range(0, len(clusters)):
-            tree.insert_cluster(clusters[index_cluster]);
-               
+
+        for cluster in clusters:
+            tree.insert_cluster(cluster);
+
             result_searching = False;
             for leaf in tree.leafes:
                 for node_entry in leaf.entries:
                     result_searching |= (node_entry == node_entry);
-       
+
             assert True == result_searching;
                    
     def testCfTreeLeafIntegrity10_2_1(self):
@@ -258,46 +258,46 @@ class CftreeUnitTest(unittest.TestCase):
     def testCfTreeEntryAbsorbing(self):
         tree = cftree(2, 1, 10000.0);
         absorbing_entry = cfentry(0, [0.0, 0.0], 0.0);
-          
-        for offset in range(0, 10):
+
+        for offset in range(10):
             cluster = [ [random() + offset, random() + offset] for i in range(10)];
             entry = cfentry(len(cluster), linear_sum(cluster), square_sum(cluster));
-              
+
             absorbing_entry += entry;
-              
+
             tree.insert(entry);
-              
+
             assert 1 == tree.amount_entries;
             assert 1 == tree.amount_nodes;
             assert 1 == tree.height;
-              
+
             assert None == tree.root.parent;
             assert absorbing_entry == tree.root.feature;
     
     
     def templateCfTreeTotalNumberPoints(self, number_points, dimension, branching_factor, number_entries, diameter):
         tree = cftree(branching_factor, number_entries, diameter);
-         
-        for index_point in range(0, number_points):
-            point = [ index_point for i in range(0, dimension) ];
-             
+
+        for index_point in range(number_points):
+            point = [index_point for i in range(dimension)];
+
             tree.insert_cluster([ point ]);
-             
+
             number_points = 0;
             for leaf in tree.leafes:
                 number_points += leaf.feature.number_points;
-                 
+
             assert (index_point + 1) == number_points;
-         
+
         number_leaf_points = 0;
         for leaf in tree.leafes:
             number_leaf_points += leaf.feature.number_points;
-         
+
         assert number_points == tree.root.feature.number_points;
-         
+
         if (number_points != number_leaf_points):
             print(number_points, number_leaf_points);
-             
+
         assert number_points == number_leaf_points;
     
     def testCfTreeTotalNumberPoints10_1_5_5_NoDiameter(self):
@@ -333,11 +333,11 @@ class CftreeUnitTest(unittest.TestCase):
     
     def templateTreeHeight(self, number_points, branching_factor):
         tree = cftree(branching_factor, 1, 0.1);
-         
-        for index_point in range(0, number_points):
+
+        for index_point in range(number_points):
             point = [ index_point ];
             tree.insert_cluster([ point ]);
-        
+
         assert math.floor(math.log(number_points, branching_factor)) <= tree.height;
     
     
@@ -359,16 +359,16 @@ class CftreeUnitTest(unittest.TestCase):
 
     def templateLevelNodeObtaining(self, number_points, branching_factor):
         tree = cftree(branching_factor, 1, 0.1);
-         
-        for index_point in range(0, number_points):
+
+        for index_point in range(number_points):
             point = [ index_point ];
             tree.insert_cluster([ point ]);
-        
+
         total_node_amount = 0;
-        for level in range(0, tree.height):
+        for level in range(tree.height):
             nodes = tree.get_level_nodes(level);
             total_node_amount += len(nodes);
-        
+
         assert tree.amount_nodes == total_node_amount;
 
     def testLevelNodeObtaining_7_2(self):
@@ -395,17 +395,17 @@ class CftreeUnitTest(unittest.TestCase):
     
     def templateLeafNodeAndEntriesAmount(self, number_points, branching_factor):
         tree = cftree(branching_factor, 1, 0.1);
-        
+
         current_size = 0;
-        for index_point in range(0, number_points):
+        for index_point in range(number_points):
             point = [ index_point ];
             tree.insert_cluster([ point ]);
-            
+
             current_size += 1;
-            
+
             assert current_size == tree.amount_entries;
             assert current_size == len(tree.leafes);
-        
+
         assert number_points == tree.amount_entries;
         assert number_points == len(tree.leafes);
     

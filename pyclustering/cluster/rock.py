@@ -152,14 +152,14 @@ class rock:
         
         maximum_goodness = 0.0;
         cluster_indexes = [-1, -1];
-        
-        for i in range(0, len(clusters)):
+
+        for i in range(len(clusters)):
             for j in range(i + 1, len(clusters)):
                 goodness = self.__calculate_goodness(clusters[i], clusters[j]);
                 if (goodness > maximum_goodness):
                     maximum_goodness = goodness;
                     cluster_indexes = [i, j];
-        
+
         return cluster_indexes;
 
 

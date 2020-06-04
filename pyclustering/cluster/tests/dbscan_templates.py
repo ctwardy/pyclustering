@@ -50,16 +50,16 @@ class DbscanTestTemplates:
     def templateLengthProcessData(path_to_file, radius, min_number_neighbors, max_number_neighbors, ccore = False):
         for _ in range(min_number_neighbors, max_number_neighbors, 1):
             sample = read_sample(path_to_file);
-             
+
             dbscan_instance = dbscan(sample, radius, min_number_neighbors, ccore);
             dbscan_instance.process();
-             
+
             clusters = dbscan_instance.get_clusters();
             noise = dbscan_instance.get_noise();
-             
+
             length = len(noise);
-            length += sum([len(cluster) for cluster in clusters]);
-         
+            length += sum(len(cluster) for cluster in clusters);
+
             assert len(sample) == length;
 
 

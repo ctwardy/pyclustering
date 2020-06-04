@@ -101,15 +101,11 @@ class syncgcolor(sync_network):
         """
         number_oscillators = len(graph_matrix);
         super().__init__(number_oscillators, type_conn = conn_type.DYNAMIC);
-        
-        if (reduction == None):
-            self._reduction = self._num_osc;
-        else:
-            self._reduction = reduction;
 
+        self._reduction = self._num_osc if reduction is None else reduction
         self._positive_weight = positive_weight;
         self._negative_weight = negative_weight;
-        
+
         self._create_connections(graph_matrix);
         
     
@@ -121,8 +117,8 @@ class syncgcolor(sync_network):
         
         """
         
-        for row in range(0, len(graph_matrix)):
-            for column in range (0, len(graph_matrix[row])):
+        for row in range(len(graph_matrix)):
+            for column in range(len(graph_matrix[row])):
                 if (graph_matrix[row][column] > 0):
                     self.set_connection(row, column);
                 
@@ -141,13 +137,13 @@ class syncgcolor(sync_network):
         
         index = argv;
         phase = 0;
-        
-        for k in range(0, self._num_osc):
+
+        for k in range(self._num_osc):
             if (self.has_connection(index, k) == True):
                 phase += self._negative_weight * math.sin(self._phases[k] - teta);
             else:
                 phase += self._positive_weight * math.sin(self._phases[k] - teta);
-            
+
         return ( phase / self._reduction );
     
     

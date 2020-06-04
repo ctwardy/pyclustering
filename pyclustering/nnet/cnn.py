@@ -146,21 +146,21 @@ class cnn_dynamic:
         iterations = steps;
         if (iterations >= len(self.output)):
             iterations = len(self.output);
-        
+
         ensembles = [];
 
         start_iteration = len(self.output) - iterations;
         end_iteration = len(self.output);
-        
+
         pattern_matrix = self.__allocate_neuron_patterns(start_iteration, end_iteration);
-        
+
         ensembles.append( [0] );
-        
+
         for index_neuron in range(1, len(self.output[0])):
             neuron_pattern = pattern_matrix[index_neuron][:];
-            
+
             neuron_assigned = False;
-            
+
             for ensemble in ensembles:
                 ensemble_pattern = pattern_matrix[ensemble[0]][:];
 
@@ -168,10 +168,10 @@ class cnn_dynamic:
                     ensemble.append(index_neuron);
                     neuron_assigned = True;
                     break;
-            
-            if (neuron_assigned is False):
+
+            if not neuron_assigned:
                 ensembles.append( [index_neuron] );
-        
+
         return ensembles;
 
 
@@ -441,25 +441,25 @@ class cnn_network:
         """
         
         dimension = len(self.__location[0]);
-        if ( (dimension != 3) and (dimension != 2) ):
+        if dimension not in [3, 2]:
             raise NameError('Network that is located in different from 2-d and 3-d dimensions can not be represented');
 
         (fig, axes) = self.__create_surface(dimension);
-        
+
         for i in range(0, self.__num_osc, 1):
             if (dimension == 2):
                 axes.plot(self.__location[i][0], self.__location[i][1], 'bo');  
                 for j in range(i, self.__num_osc, 1):    # draw connection between two points only one time
                     if (self.__weights[i][j] > 0.0):
                         axes.plot([self.__location[i][0], self.__location[j][0]], [self.__location[i][1], self.__location[j][1]], 'b-', linewidth = 0.5);
-            
-            elif (dimension == 3):
+
+            else:
                 axes.scatter(self.__location[i][0], self.__location[i][1], self.__location[i][2], c = 'b', marker = 'o');
-                
+
                 for j in range(i, self.__num_osc, 1):    # draw connection between two points only one time
                     if (self.__weights[i][j] > 0.0):
                         axes.plot([self.__location[i][0], self.__location[j][0]], [self.__location[i][1], self.__location[j][1]], [self.__location[i][2], self.__location[j][2]], 'b-', linewidth = 0.5);
-                
+
         plt.grid();
         plt.show();
     

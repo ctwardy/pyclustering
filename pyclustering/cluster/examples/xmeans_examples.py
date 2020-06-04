@@ -171,22 +171,22 @@ def template_clustering_performance(start_centers, path, tolerance = 0.025, crit
 
 def template_clustering_random_points_performance(cluster_length, amount_clusters, ccore_flag):
     sample = [ [ random.random(), random.random() ] for _ in range(cluster_length) ];
+    default_offset = 5;
     for index in range(1, amount_clusters):
-        default_offset = 5;
         sample += [ [ random.random() + default_offset * index, random.random() + default_offset * index ] for _ in range(cluster_length) ];
-    
+
     initial_center = [ [ random.random(), random.random() ], [ random.random(), random.random() ] ];
     xmeans_instance = xmeans(sample, initial_center, 20, 0.25, splitting_type.BAYESIAN_INFORMATION_CRITERION, ccore_flag);
-    
+
     ticks_array = [];
     amount_measures = 5;
-    
+
     for _ in range(amount_measures):
         xmeans_instance = xmeans(sample, initial_center, 20, 0.25, splitting_type.BAYESIAN_INFORMATION_CRITERION, ccore_flag);
         (ticks, _) = timedcall(xmeans_instance.process);
-        
+
         ticks_array.append(ticks);
-    
+
     print("Random sample: (size:" + str(len(sample)) + ") ', Execution time: '", sum(ticks_array) / amount_measures);
 
 

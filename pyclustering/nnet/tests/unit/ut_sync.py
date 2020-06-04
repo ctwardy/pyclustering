@@ -71,16 +71,16 @@ class SyncUnitTest(unittest.TestCase):
 
     def testOutputNormalization(self):
         network = sync_network(20, 1);
-          
+
         output_dynamic = network.simulate(50, 20, solve_type.RK4);
-         
+
         t = output_dynamic.time;
         dyn = output_dynamic.output;
-         
-        for iteration in range(len(dyn)):
-            for index_oscillator in range(len(dyn[iteration])):
-                assert (dyn[iteration][index_oscillator] >= 0);
-                assert (dyn[iteration][index_oscillator] <= 2.0 * pi);
+
+        for item_ in dyn:
+            for item in item_:
+                assert item >= 0;
+                assert item <= 2.0 * pi;
 
 
 

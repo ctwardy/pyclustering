@@ -41,41 +41,37 @@ class EmaUnitTest(unittest.TestCase):
                                expected_clusters_sizes, 
                                init_type = ema_init_type.KMEANS_INITIALIZATION):
         testing_result = False;
-        if (init_type != ema_init_type.KMEANS_INITIALIZATION):
-            attempts = 10;
-        else:
-            attempts = 5;
-        
+        attempts = 10 if (init_type != ema_init_type.KMEANS_INITIALIZATION) else 5
         for _ in range(attempts):
             sample = read_sample(sample_path);
-            
+
             means, variances = None, None;
             if (init_type is not ema_init_type.KMEANS_INITIALIZATION):
                 means, variances = ema_initializer(sample, amount_clusters).initialize(init_type);
-            
+
             ema_instance = ema(sample, amount_clusters, means, variances);
             ema_instance.process();
-            
+
             clusters = ema_instance.get_clusters();
             centers = ema_instance.get_centers();
             covariances = ema_instance.get_covariances();
-            
+
             assert len(centers) == len(clusters);
             assert len(covariances) == len(clusters);
-            
+
             obtained_cluster_sizes = [len(cluster) for cluster in clusters];
             if (len(sample) != sum(obtained_cluster_sizes)):
                 continue;
-            
+
             if (expected_clusters_sizes != None):
                 obtained_cluster_sizes.sort();
                 expected_clusters_sizes.sort();
                 if (obtained_cluster_sizes != expected_clusters_sizes):
                     continue;
-            
+
             testing_result = True;
             break;
-        
+
         assert testing_result == True;
 
 

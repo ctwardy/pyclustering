@@ -110,13 +110,9 @@ def segmentation_double_t():
     image = rgb2gray(image);
 
     for pixel_index in range(len(image)):
-        if (image[pixel_index] < 128):
-            image[pixel_index] = 1;
-        else:
-            image[pixel_index] = 0;
-
+        image[pixel_index] = 1 if (image[pixel_index] < 128) else 0
     params = pcnn_parameters();
-    
+
     params.AF = 0.1;
     params.AL = 0.1;
     params.AT = 0.8;
@@ -125,7 +121,7 @@ def segmentation_double_t():
     params.VT = 20.0;
     params.W = 1.0;
     params.M = 1.0;
-    
+
     ensembles = template_dynamic_pcnn(32 * 32, 28,  image, params, conn_type.GRID_EIGHT, False);
     draw_image_mask_segments(IMAGE_SIMPLE_SAMPLES.IMAGE_SIMPLE10, ensembles);
 

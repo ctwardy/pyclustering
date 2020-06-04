@@ -364,11 +364,7 @@ class genetic_algorithm:
         np.random.seed()
 
         # Clustering data
-        if type(data) is list:
-            self._data = np.array(data)
-        else:
-            self._data = data
-
+        self._data = np.array(data) if type(data) is list else data
         # Count clusters
         self._count_clusters = count_clusters
 
@@ -609,9 +605,7 @@ class genetic_algorithm:
         
         """
 
-        population = np.random.randint(count_clusters, size=(chromosome_count, count_data))
-
-        return population
+        return np.random.randint(count_clusters, size=(chromosome_count, count_data))
 
 
     @staticmethod

@@ -163,23 +163,24 @@ class pcnn_dynamic:
         
         if (self.__ccore_pcnn_dynamic_pointer is not None):
             return wrapper.pcnn_dynamic_allocate_sync_ensembles(self.__ccore_pcnn_dynamic_pointer);
-        
+
         sync_ensembles = [];
         traverse_oscillators = set();
-        
+
         number_oscillators = len(self.__dynamic[0]);
-        
+
         for t in range(len(self.__dynamic) - 1, 0, -1):
             sync_ensemble = [];
             for i in range(number_oscillators):
-                if (self.__dynamic[t][i] == self.__OUTPUT_TRUE):
-                    if (i not in traverse_oscillators):
-                        sync_ensemble.append(i);
-                        traverse_oscillators.add(i);
-            
+                if (self.__dynamic[t][i] == self.__OUTPUT_TRUE) and (
+                    i not in traverse_oscillators
+                ):
+                    sync_ensemble.append(i);
+                    traverse_oscillators.add(i);
+
             if (sync_ensemble != []):
                 sync_ensembles.append(sync_ensemble);
-        
+
         return sync_ensembles;
 
 
@@ -221,12 +222,8 @@ class pcnn_dynamic:
         
         if (self.__ccore_pcnn_dynamic_pointer is not None):
             return wrapper.pcnn_dynamic_allocate_time_signal(self.__ccore_pcnn_dynamic_pointer);
-        
-        signal_vector_information = [];
-        for t in range(0, len(self.__dynamic)):
-            signal_vector_information.append(sum(self.__dynamic[t]));
-        
-        return signal_vector_information;
+
+        return [sum(item) for item in self.__dynamic];
 
 
 class pcnn_visualizer:
@@ -434,19 +431,17 @@ class pcnn_network(network):
         
         if (len(stimulus) != len(self)):
             raise NameError('Number of stimulus should be equal to number of oscillators. Each stimulus corresponds to only one oscillators.');
-        
+
         if (self.__ccore_pcnn_pointer is not None):
             ccore_instance_dynamic = wrapper.pcnn_simulate(self.__ccore_pcnn_pointer, steps, stimulus);
             return pcnn_dynamic(None, ccore_instance_dynamic);
-        
-        dynamic = [];
-        dynamic.append(self._outputs);
-        
-        for step in range(1, steps, 1):
+
+        dynamic = [self._outputs];
+        for _ in range(1, steps, 1):
             self._outputs = self._calculate_states(stimulus);
-            
+
             dynamic.append(self._outputs);
-        
+
         return pcnn_dynamic(dynamic);
     
     
@@ -464,81 +459,81 @@ class pcnn_network(network):
         linking = [0.0] * self._num_osc;
         outputs = [0.0] * self._num_osc;
         threshold = [0.0] * self._num_osc;
-        
+
         # Used by Fast-Linking
         output_change = False;
-        
+
         for index in range(0, self._num_osc, 1):
             neighbors = self.get_neighbors(index);
-            
+
             feeding_influence = 0.0;
             linking_influence = 0.0;
-            
+
             for index_neighbour in neighbors:
                 feeding_influence += self._outputs[index_neighbour] * self._params.M;
                 linking_influence += self._outputs[index_neighbour] * self._params.W;
-            
+
             feeding_influence *= self._params.VF;
             linking_influence *= self._params.VL;
-            
+
             feeding[index] = self._params.AF * self._feeding[index] + stimulus[index] + feeding_influence;
             linking[index] = self._params.AL * self._linking[index] + linking_influence;
-            
+
             # calculate internal activity
             internal_activity = feeding[index] * (1.0 + self._params.B * linking[index]);
-            
+
             # calculate output of the oscillator
             if (internal_activity > self._threshold[index]):
                 outputs[index] = self.__OUTPUT_TRUE;
             else:
                 outputs[index] = self.__OUTPUT_FALSE;
-            
+
             # In case of Fast Linking we should calculate threshould until output is changed.
             if (self._params.FAST_LINKING is not True):
                 threshold[index] = self._params.AT * self._threshold[index] + self._params.VT * outputs[index];
-        
-        
+
+
         # In case of Fast Linking we need to wait until output is changed.
         if (self._params.FAST_LINKING is True):
             current_output_change = False;
             previous_outputs = outputs[:];
-            
-            while (output_change is True):               
+
+            while output_change:               
                 for index in range(0, self._num_osc, 1):
                     linking_influence = 0.0;
-            
+
                     for index_neighbour in neighbors:
                         linking_influence += previous_outputs[index_neighbour] * self._params.W;
-                    
+
                     linking_influence *= self._params.VL;
                     linking[index] = linking_influence;
-                    
+
                     internal_activity = feeding[index] * (1.0 + self._params.B * linking[index]);
-                    
+
                     # calculate output of the oscillator
                     if (internal_activity > self._threshold[index]):
                         outputs[index] = self.__OUTPUT_TRUE;
                     else:
                         outputs[index] = self.__OUTPUT_FALSE;
-                        
+
                     if (outputs[index] != previous_outputs[index]):
                         current_output_change = True;
-                
+
                 output_change = current_output_change;
                 current_output_change = False;
-                
-                if (output_change is True):
+
+                if output_change:
                     previous_outputs = outputs[:];
-        
+
         # In case of Fast Linking threshould should be calculated after fast linking.
         if (self._params.FAST_LINKING is True):
             for index in range(0, self._num_osc, 1):
                 threshold[index] = self._params.AT * self._threshold[index] + self._params.VT * outputs[index];
-        
+
         self._feeding = feeding[:];
         self._linking = linking[:];
         self._threshold = threshold[:];
-        
+
         return outputs
 
         

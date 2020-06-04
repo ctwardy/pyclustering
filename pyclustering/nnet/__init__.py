@@ -158,8 +158,8 @@ class network:
         self._num_osc = num_osc;
         self._conn_represent = conn_represent;
         self.__conn_type = type_conn;
-        
-        if ( (type_conn == conn_type.GRID_EIGHT) or (type_conn == conn_type.GRID_FOUR) ):
+
+        if type_conn in [conn_type.GRID_EIGHT, conn_type.GRID_FOUR]:
             if ( (height is not None) and (width is not None) ):
                 self.__height = height;
                 self.__width = width;
@@ -167,13 +167,13 @@ class network:
                 side_size = self._num_osc ** (0.5);
                 if (side_size - math.floor(side_size) > 0):
                     raise NameError("Invalid number of oscillators '" + str(num_osc) + "' in the network in case of grid structure (root square should be extractable for the number of oscillators).");
-                
+
                 self.__height = int(side_size);
                 self.__width = self.__height;
-        
+
             if (self.__height * self.__width != self._num_osc):
                 raise NameError('Width (' + str(self.__width) + ') x Height (' + str(self.__height) + ') must be equal to Size (' + str(self._num_osc) + ') in case of grid structure');
-        
+
         self._create_structure(type_conn);
     
     
@@ -198,13 +198,12 @@ class network:
         
         """
         
-        if (self._conn_represent == conn_represent.MATRIX):
-            for index in range(0, self._num_osc, 1):
+        for index in range(0, self._num_osc, 1):
+            if (self._conn_represent == conn_represent.MATRIX):
                 self._osc_conn.append([True] * self._num_osc);
                 self._osc_conn[index][index] = False;
-        
-        elif (self._conn_represent == conn_represent.LIST):
-            for index in range(0, self._num_osc, 1):
+
+            elif self._conn_represent == conn_represent.LIST:
                 self._osc_conn.append([neigh for neigh in range(0, self._num_osc, 1) if index != neigh]); 
 
 
@@ -336,26 +335,26 @@ class network:
         
         """
         
-        self._osc_conn = list();
-        
+        self._osc_conn = [];
+
         if (type_conn == conn_type.NONE):
             self.__create_none_connections();
-        
+
         elif (type_conn == conn_type.ALL_TO_ALL):
             self.__create_all_to_all_connections();
-        
+
         elif (type_conn == conn_type.GRID_FOUR):
             self.__create_grid_four_connections();
-            
+
         elif (type_conn == conn_type.GRID_EIGHT):
             self.__create_grid_eight_connections();
-            
+
         elif (type_conn == conn_type.LIST_BIDIR):
             self.__create_list_bidir_connections();
-        
+
         elif (type_conn == conn_type.DYNAMIC):
             self.__create_dynamic_connection();
-        
+
         else:
             raise NameError('The unknown type of connections');
          
