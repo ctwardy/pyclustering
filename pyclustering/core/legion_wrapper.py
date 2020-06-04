@@ -52,7 +52,7 @@ class c_legion_parameters(Structure):
 
 def legion_create(size, conn_type, params):
     ccore = load_core();
-    
+
     c_params = c_legion_parameters();
     c_params.eps = params.eps;
     c_params.alpha = params.alpha;
@@ -71,11 +71,9 @@ def legion_create(size, conn_type, params):
     c_params.ro = params.ro;
     c_params.I = params.I;
     c_params.ENABLE_POTENTIONAL = params.ENABLE_POTENTIONAL;
-    
+
     ccore.legion_create.restype = POINTER(c_void_p);
-    legion_network_pointer = ccore.legion_create(c_uint(size), c_uint(conn_type), pointer(c_params));
-    
-    return legion_network_pointer;
+    return ccore.legion_create(c_uint(size), c_uint(conn_type), pointer(c_params));
 
 
 def legion_destroy(legion_network_pointer):

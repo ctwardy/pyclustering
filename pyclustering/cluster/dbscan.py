@@ -95,12 +95,12 @@ class dbscan:
         
         if (self.__ccore is True):
             (self.__clusters, self.__noise) = wrapper.dbscan(self.__pointer_data, self.__eps, self.__neighbors, True);
-            
+
         else:
             self.__kdtree = kdtree(self.__pointer_data, range(len(self.__pointer_data)));
-            for i in range(0, len(self.__pointer_data)):
+            for i in range(len(self.__pointer_data)):
                 if (self.__visited[i] == False):
-                     
+
                     cluster = self.__expand_cluster(i);    # Fast mode
                     if (cluster != None):
                         self.__clusters.append(cluster);
@@ -167,28 +167,26 @@ class dbscan:
         cluster = None;
         self.__visited[point] = True;
         neighbors = self.__neighbor_indexes(point);
-         
+
         if (len(neighbors) >=self.__neighbors):
-             
-            cluster = [];
-            cluster.append(point);
-             
+                 
+            cluster = [point];
             self.__belong[point] = True;
-             
+
             for i in neighbors:
                 if (self.__visited[i] == False):
                     self.__visited[i] = True;
                     next_neighbors = self.__neighbor_indexes(i);
-                     
+
                     if (len(next_neighbors) >= self.__neighbors):
                         # if some node has less then minimal number of neighbors than we shouldn't look at them
                         # because maybe it's a noise.
                         neighbors += [k for k in next_neighbors if ( (k in neighbors) == False)];
-                 
+
                 if (self.__belong[i] == False):
                     cluster.append(i);
                     self.__belong[i] = True;
-             
+
         return cluster;
 
     def __neighbor_indexes(self, index_point):

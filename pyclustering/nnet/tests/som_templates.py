@@ -69,20 +69,20 @@ class SomTestTemplates:
     def templateTestWinners(ccore_flag):
         types = [type_conn.func_neighbor, type_conn.grid_eight, type_conn.grid_four, type_conn.honeycomb];
         sample = read_sample(SIMPLE_SAMPLES.SAMPLE_SIMPLE3);
-                
+
         for stucture in types:
             network = som(5, 5, stucture, ccore = ccore_flag);
             network.train(sample, 100);
-                    
+
             assert sum(network.awards) == 60;
-                    
-            points = list();
+
+            points = [];
             for i in range(network.size):
                 if (network.awards[i] > 0):
                     points += network.capture_objects[i];
-                    
+
             assert len(points) == len(sample);
-                    
+
             points = sorted(points);
             for i in range(len(points)):
                 assert points[i] == i;

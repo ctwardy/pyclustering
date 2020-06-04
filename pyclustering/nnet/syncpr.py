@@ -79,39 +79,39 @@ class syncpr_visualizer(sync_visualizer):
         if (number_pictures > 50):
             iteration_math_step = number_pictures / 50.0;
             number_pictures = 50;
-        
+
         number_cols = int(numpy.ceil(number_pictures ** 0.5));
         number_rows = int(numpy.ceil(number_pictures / number_cols));
-        
+
         real_index = 0, 0;
         double_indexer = True;
         if ( (number_cols == 1) or (number_rows == 1) ):
             real_index = 0;
             double_indexer = False;
-        
+
         (_, axarr) = plt.subplots(number_rows, number_cols);
-        
+
         if (number_pictures > 1):
             plt.setp([ax for ax in axarr], visible = False);
-            
+
         iteration_display = 0.0;
         for iteration in range(len(syncpr_output_dynamic)):
             if (iteration >= iteration_display):
                 iteration_display += iteration_math_step;
-                
+
                 ax_handle = axarr;
                 if (number_pictures > 1):
                     ax_handle = axarr[real_index];
-                    
+
                 syncpr_visualizer.__show_pattern(ax_handle, syncpr_output_dynamic, image_height, image_width, iteration);
-                
-                if (double_indexer is True):
+
+                if double_indexer:
                     real_index = real_index[0], real_index[1] + 1;
                     if (real_index[1] >= number_cols):
-                        real_index = real_index[0] + 1, 0; 
+                        real_index = real_index[0] + 1, 0;
                 else:
                     real_index += 1;
-    
+
         plt.show();
     
     
@@ -351,58 +351,53 @@ class syncpr(sync_network):
         """
         
         self.__validate_pattern(pattern);
-        
+
         if (self._ccore_network_pointer is not None):
             ccore_instance_dynamic = wrapper.syncpr_simulate_dynamic(self._ccore_network_pointer, pattern, order, solution, collect_dynamic, step);
             return syncpr_dynamic(None, None, ccore_instance_dynamic);
-        
+
         for i in range(0, len(pattern), 1):
-            if (pattern[i] > 0.0):
-                self._phases[i] = 0.0;
-            else:
-                self._phases[i] = math.pi / 2.0;
-        
+            self._phases[i] = 0.0 if (pattern[i] > 0.0) else math.pi / 2.0
         # For statistics and integration
         time_counter = 0;
-        
+
         # Prevent infinite loop. It's possible when required state cannot be reached.
         previous_order = 0;
         current_order = self.__calculate_memory_order(pattern);
-        
+
         # If requested input dynamics
         dyn_phase = [];
         dyn_time = [];
         if (collect_dynamic == True):
             dyn_phase.append(self._phases);
             dyn_time.append(0);
-        
+
         # Execute until sync state will be reached
         while (current_order < order):
             # update states of oscillators
             self._phases = self._calculate_phases(solution, time_counter, step, int_step);
-            
+
             # update time
             time_counter += step;
-            
+
             # if requested input dynamic
             if (collect_dynamic == True):
                 dyn_phase.append(self._phases);
                 dyn_time.append(time_counter);
-                
+
             # update orders
             previous_order = current_order;
             current_order = self.__calculate_memory_order(pattern);
-            
+
             # hang prevention
             if (abs(current_order - previous_order) < threshold_changes):
                 break;
-        
+
         if (collect_dynamic != True):
             dyn_phase.append(self._phases);
             dyn_time.append(time_counter);
-        
-        output_sync_dynamic = syncpr_dynamic(dyn_phase, dyn_time, None);
-        return output_sync_dynamic;
+
+        return syncpr_dynamic(dyn_phase, dyn_time, None);
 
 
     def simulate_static(self, steps, time, pattern, solution = solve_type.FAST, collect_dynamic = False):
@@ -425,17 +420,13 @@ class syncpr(sync_network):
         """
         
         self.__validate_pattern(pattern);
-        
+
         if (self._ccore_network_pointer is not None):
             ccore_instance_dynamic = wrapper.syncpr_simulate_static(self._ccore_network_pointer, steps, time, pattern, solution, collect_dynamic);
             return syncpr_dynamic(None, None, ccore_instance_dynamic);
-        
+
         for i in range(0, len(pattern), 1):
-            if (pattern[i] > 0.0):
-                self._phases[i] = 0.0;
-            else:
-                self._phases[i] = math.pi / 2.0;
-                
+            self._phases[i] = 0.0 if (pattern[i] > 0.0) else math.pi / 2.0
         return super().simulate_static(steps, time, solution, collect_dynamic);
     
     
@@ -490,21 +481,21 @@ class syncpr(sync_network):
         """
         
         index = argv;
-        
+
         phase = 0.0;
         term = 0.0;
-        
-        for k in range(0, self._num_osc):
+
+        for k in range(self._num_osc):
             if (k != index):
                 phase_delta = self._phases[k] - teta;
-                
+
                 phase += self._coupling[index][k] * math.sin(phase_delta);
-                
+
                 term1 = self._increase_strength1 * math.sin(2.0 * phase_delta);
                 term2 = self._increase_strength2 * math.sin(3.0 * phase_delta);
-                
+
                 term += (term1 - term2);
-                
+
         return ( phase + term / len(self) );
     
     
@@ -518,7 +509,7 @@ class syncpr(sync_network):
         """
         if (len(pattern) != len(self)):
             raise NameError('syncpr: length of the pattern (' + len(pattern) + ') should be equal to size of the network');
-        
+
         for feature in pattern:
-            if ( (feature != -1.0) and (feature != 1.0) ):
+            if feature not in [-1.0, 1.0]:
                 raise NameError('syncpr: patten feature (' + feature + ') should be distributed in [-1; 1]');

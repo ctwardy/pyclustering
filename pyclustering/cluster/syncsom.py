@@ -151,12 +151,12 @@ class syncsom:
         
         """
         sync_layer = syncnet(weights, 0.0, initial_phases = initial_type.RANDOM_GAUSSIAN);
-        
-        for oscillator_index1 in range(0, len(sync_layer)):
+
+        for oscillator_index1 in range(len(sync_layer)):
             for oscillator_index2 in range(oscillator_index1 + 1, len(sync_layer)):
                 if (self.__has_object_connection(oscillator_index1, oscillator_index2)):
                     sync_layer.set_connection(oscillator_index1, oscillator_index2);
-        
+
         return sync_layer;
 
 
@@ -196,17 +196,17 @@ class syncsom:
         """
         
         sync_clusters = self._analyser.allocate_clusters();
-        
+
         # Decode it to indexes of SOM neurons
-        som_clusters = list();
+        som_clusters = [];
         for oscillators in sync_clusters:
-            cluster = list();
+            cluster = [];
             for index_oscillator in oscillators:
                 index_neuron = self._som_osc_table[index_oscillator];
                 cluster.append(index_neuron);
-                
+
             som_clusters.append(cluster);
-            
+
         return som_clusters;
 
 

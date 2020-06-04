@@ -91,24 +91,21 @@ class KmedoidsTestTemplates:
     def templateClusterAllocationTheSameObjects(number_objects, number_clusters, ccore_flag = False):
         value = random();
         input_data = [ [value] ] * number_objects;
-        
-        initial_medoids = [];
+
         step = math.floor(number_objects / number_clusters);
-        for i in range(number_clusters):
-            initial_medoids.append(i * step);
-        
+        initial_medoids = [i * step for i in range(number_clusters)];
         kmedoids_instance = kmedoids(input_data, initial_medoids, ccore=ccore_flag);
         kmedoids_instance.process();
         clusters = kmedoids_instance.get_clusters();
-        
+
         object_mark = [False] * number_objects;
         allocated_number_objects = 0;
-        
+
         for cluster in clusters:
             for index_object in cluster: 
                 assert (object_mark[index_object] == False);    # one object can be in only one cluster.
-                
+
                 object_mark[index_object] = True;
                 allocated_number_objects += 1;
-            
+
         assert (number_objects == allocated_number_objects);    # number of allocated objects should be the same.

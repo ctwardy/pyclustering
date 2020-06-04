@@ -69,23 +69,20 @@ class KmediansTestTemplates:
     def templateClusterAllocationTheSameObjects(number_objects, number_clusters, ccore_flag = False):
         value = random();
         input_data = [ [value] ] * number_objects;
-         
-        initial_centers = [];
-        for i in range(number_clusters):
-            initial_centers.append([ random() ]);
-         
+
+        initial_centers = [[ random() ] for _ in range(number_clusters)];
         kmedians_instance = kmedians(input_data, initial_centers, ccore=ccore_flag);
         kmedians_instance.process();
         clusters = kmedians_instance.get_clusters();
-         
+
         object_mark = [False] * number_objects;
         allocated_number_objects = 0;
-         
+
         for cluster in clusters:
             for index_object in cluster: 
                 assert (object_mark[index_object] == False);    # one object can be in only one cluster.
-                 
+
                 object_mark[index_object] = True;
                 allocated_number_objects += 1;
-             
+
         assert (number_objects == allocated_number_objects);    # number of allocated objects should be the same.

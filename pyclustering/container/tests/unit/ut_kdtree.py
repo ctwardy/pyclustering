@@ -95,25 +95,25 @@ class KDTreeUnitTest(unittest.TestCase):
         "Check for right parents"
         array = [ [4, 3], [3, 4], [5, 8], [3, 3], [3, 9], [6, 4], [5, 9] ];
         tree = kdtree(array);
-        
+
         node = tree.find_node([4, 3]);
-        assert node.parent == None;
-        
+        assert node.parent is None;
+
         node = tree.find_node([3, 4]);
         assert node.parent.data == [4, 3];
-        
+
         node = tree.find_node([5, 8]);
         assert node.parent.data == [4, 3];
-    
+
         node = tree.find_node([6, 4]);
         assert node.parent.data == [5, 8];
-        
+
         node = tree.find_node([3, 3]);
         assert node.parent.data == [3, 4];
-        
+
         node = tree.find_node([5, 9]);
         assert node.parent.data == [5, 8];
-        
+
         node = tree.find_node([3, 9]);
         assert node.parent.data == [3, 4];
 
@@ -122,25 +122,25 @@ class KDTreeUnitTest(unittest.TestCase):
         "Create empty k-d tree and insert nodes and after that remove all nodes"
         array = [ [4, 3], [3, 4], [5, 8], [3, 3], [3, 9], [6, 4], [5, 9] ];
         payload = ['q', 'w', 'e', 'r', 't', 'y', 'u'];
-        
+
         tree = kdtree();
         for index in range(len(array)):
             node = tree.insert(array[index], payload[index]);
-        
+
         length = len(array);
-        for index in range(0, length):
+        for index in range(length):
             node = tree.remove(array[index]);
             assert len(tree.traverse()) == length - index - 1;
-            
+
             if (index + 1 < length):    # When root is removed then None will be returned
                 assert node != None;
             else:
-                assert node == None;
+                assert node is None;
 
             # Check other nodes are located in the tree
             for k in range(index + 1, length):
                 node = tree.find_node(array[k]);
-                
+
                 assert node.data == array[k];
                 assert node.payload == payload[k];
 
@@ -181,17 +181,17 @@ class KDTreeUnitTest(unittest.TestCase):
     def testKDTreeNearestNodeTrivial1(self):
         array = [ [4, 3], [3, 4], [5, 8], [3, 3], [3, 9], [6, 4], [6, 9], [4, 9] ];
         tree = kdtree(array);
-        
+
         for item in array:
             assert tree.find_nearest_dist_node(item, 0).data == item;
             assert tree.find_nearest_dist_node(item, 0.5).data == item;
             assert tree.find_nearest_dist_node(item, 1).data == item;
             assert tree.find_nearest_dist_node(item, 3).data == item;
             assert tree.find_nearest_dist_node(item, 10).data == item;
-        
+
         assert tree.find_nearest_dist_node([6.1, 4.1], 0.5).data == [6, 4];
-        assert tree.find_nearest_dist_node([6, 12], 0) == None;
-        assert tree.find_nearest_dist_node([6, 12], 1) == None;
+        assert tree.find_nearest_dist_node([6, 12], 0) is None;
+        assert tree.find_nearest_dist_node([6, 12], 1) is None;
         assert tree.find_nearest_dist_node([6, 12], 3).data == [6, 9];
 
 
@@ -214,10 +214,10 @@ class KDTreeUnitTest(unittest.TestCase):
     def templateSeachNearestNodeInTree(self, sample_path):
         sample = read_sample(sample_path);
         tree = kdtree();
-        
+
         for point in sample:
             node = tree.find_nearest_dist_node(point, 0.0);
-            assert node == None;
+            assert node is None;
 
             tree.insert(point, None);
 

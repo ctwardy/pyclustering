@@ -119,8 +119,7 @@ class syncsegm_analyser:
         """
         
         segments = self.__color_analyser.allocate_clusters(eps);
-        real_segments = [cluster for cluster in segments if len(cluster) > noise_size];
-        return real_segments;
+        return [cluster for cluster in segments if len(cluster) > noise_size];
     
     
     def allocate_objects(self, eps = 0.01, noise_size = 1):
@@ -136,16 +135,15 @@ class syncsegm_analyser:
         
         if (self.__object_segment_analysers is None):
             return [];
-        
+
         segments = [];
         for object_segment_analyser in self.__object_segment_analysers:
             indexes = object_segment_analyser['color_segment'];
             analyser = object_segment_analyser['analyser'];
-            
+
             segments += analyser.allocate_clusters(eps, indexes);
-        
-        real_segments = [segment for segment in segments if len(segment) > noise_size];
-        return real_segments;
+
+        return [segment for segment in segments if len(segment) > noise_size];
 
 
 class syncsegm:
@@ -235,9 +233,7 @@ class syncsegm:
         """
         
         network = syncnet(image_source, self.__color_radius, initial_phases = initial_type.EQUIPARTITION, ccore = True);
-        analyser = network.process(self.__order_color, solve_type.FAST, collect_dynamic);
-        
-        return analyser;
+        return network.process(self.__order_color, solve_type.FAST, collect_dynamic);
     
     
     def __analyse_objects(self, image_source, color_analyser, collect_dynamic):
@@ -280,14 +276,12 @@ class syncsegm:
         
         """
         coordinates = self.__extract_location_coordinates(image_size, color_segment);
-        
+
         if (len(coordinates) < self.__noise_size):
             return None;
-        
+
         network = syncnet(coordinates, self.__object_radius, initial_phases = initial_type.EQUIPARTITION, ccore = True);
-        analyser = network.process(self.__order_object, solve_type.FAST, collect_dynamic);
-        
-        return analyser;
+        return network.process(self.__order_object, solve_type.FAST, collect_dynamic);
     
     
     def __extract_location_coordinates(self, image_size, color_segment):

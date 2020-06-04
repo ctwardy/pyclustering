@@ -133,10 +133,10 @@ class SyncnetIntegrationTest(unittest.TestCase):
         for _ in range(0, 20, 1):
             synccnet_instance = syncnet([ [1], [2], [3], [20], [21], [22] ], 3, 0.999, solve_type.FAST, initial_type.EQUIPARTITION, ccore = True);
             analyser = synccnet_instance.process();
-            
+
             result = (len(analyser.allocate_clusters(0.1)) == 2);
-            if (result is True): break;
-        
+            if result: break;
+
         assert True == result;
 
 

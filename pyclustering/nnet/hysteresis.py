@@ -101,35 +101,38 @@ class hysteresis_dynamic:
         """
         
         clusters = [ [0] ];
-        
+
         number_oscillators = len(self._dynamic[0]);
-        
+
+        analysis_start_step_index = len(self._dynamic) - 1;
+
         for i in range(1, number_oscillators, 1):
             captured_neuron = True;
             for cluster in clusters:
                 neuron_index = cluster[0];
-                
+
                 analysis_steps = threshold_steps;
                 if (len(self._dynamic) < analysis_steps):
                     analysis_steps = len(self._dynamic);
-                
-                analysis_start_step_index = len(self._dynamic) - 1;
-                
+
                 for step in range(analysis_start_step_index, analysis_start_step_index - analysis_steps, -1):
                     neuron_amplitude = self._dynamic[step][neuron_index];
                     candidate_amplitude = self._dynamic[step][i];
-                    
-                    if ( not (candidate_amplitude < (neuron_amplitude + tolerance)) or not (candidate_amplitude > (neuron_amplitude - tolerance)) ):
+
+                    if not (
+                        candidate_amplitude < (neuron_amplitude + tolerance)
+                        and candidate_amplitude > (neuron_amplitude - tolerance)
+                    ):
                         captured_neuron = False;
                         break;
-                    
-                if ( captured_neuron is True ):
+
+                if captured_neuron:
                     cluster.append(i);
                     break;
-            
-            if (captured_neuron is False):
+
+            if not captured_neuron:
                 clusters.append([i]);
-        
+
         return clusters;
 
 
@@ -234,18 +237,18 @@ class hysteresis_network(network):
         """
         
         super().__init__(num_osc, type_conn, type_conn_represent);
-        
+
         # list of states of neurons.
         self._states = [0] * self._num_osc;
-        
+
         # list of current outputs of neurons.
         self._outputs = [-1] * self._num_osc;
-        
+
         # list of previous outputs of neurons
         self._outputs_buffer = [-1] * self._num_osc;
-        
+
         # matrix of connection weights between neurons.
-        self._weight = list();
+        self._weight = [];
         for index in range(0, self._num_osc, 1):
             self._weight.append( [neigh_weight] * self._num_osc);
             self._weight[index][index] = own_weight;

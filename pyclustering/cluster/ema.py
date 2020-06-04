@@ -54,25 +54,21 @@ def gaussian(data, mean, covariance):
     
     """
     dimension = float(len(data[0]));
- 
+
     if (dimension != 1.0):
         inv_variance = numpy.linalg.pinv(covariance);
     else:
         inv_variance = 1.0 / covariance;
-    
+
     divider = (pi * 2.0) ** (dimension / 2.0) * numpy.sqrt(numpy.linalg.norm(covariance));
-    if (divider != 0.0):
-        right_const = 1.0 / divider;
-    else:
-        right_const = float('inf');
-    
+    right_const = 1.0 / divider if (divider != 0.0) else float('inf')
     result = [];
-    
+
     for point in data:
         mean_delta = point - mean;
         point_gaussian = right_const * numpy.exp( -0.5 * mean_delta.dot(inv_variance).dot(numpy.transpose(mean_delta)) );
         result.append(point_gaussian);
-    
+
     return result;
 
 
@@ -630,10 +626,10 @@ class ema:
         divider = 0.0;
         for i in range(self.__amount_clusters):
             divider += self.__pic[i] * self.__gaussians[i][index_point];
-        
-        if ( (divider != 0.0) and (divider != float('inf')) ):
+
+        if divider not in [0.0, float('inf')]:
             return self.__pic[index_cluster] * self.__gaussians[index_cluster][index_point] / divider;
-        
+
         return float('nan');
 
 
@@ -682,8 +678,8 @@ class ema:
         for index_point in range(len(self.__data)):
             deviation = numpy.array( [ self.__data[index_point] - means ]);
             covariance += rc[index_point] * deviation.T.dot(deviation);
-        
-        covariance = covariance / mc;
+
+        covariance /= mc;
         return covariance;
 
 
@@ -691,6 +687,6 @@ class ema:
         mean = 0.0;
         for index_point in range(len(self.__data)):
             mean += rc[index_point] * self.__data[index_point];
-        
-        mean = mean / mc;
+
+        mean /= mc;
         return mean;

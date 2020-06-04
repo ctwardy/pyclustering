@@ -340,18 +340,18 @@ class kdtree:
         stack = [];
         candidates = [];
         isFinished = False;
-        while isFinished is False:
+        while not isFinished:
             if node_head is not None:
                 stack.append(node_head);
                 node_head = node_head.left;
             else:
-                if len(stack) != 0:
+                if not stack:
+                    isFinished = True;
+
+                else:
                     node_head = stack.pop();
                     candidates.append(node_head);
                     node_head = node_head.right;
-                else:
-                    isFinished = True;
-
         return min(candidates, key = min_key);
     
     

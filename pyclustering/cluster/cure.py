@@ -369,9 +369,9 @@ class cure:
         """
         
         merged_cluster = cure_cluster();
-        
+
         merged_cluster.points = cluster1.points + cluster2.points;
-        
+
         # merged_cluster.mean = ( len(cluster1.points) * cluster1.mean + len(cluster2.points) * cluster2.mean ) / ( len(cluster1.points) + len(cluster2.points) );
         dimension = len(cluster1.mean);
         merged_cluster.mean = [0] * dimension;
@@ -380,36 +380,36 @@ class cure:
         else:
             for index in range(dimension):
                 merged_cluster.mean[index] = ( len(cluster1.points) * cluster1.mean[index] + len(cluster2.points) * cluster2.mean[index] ) / ( len(cluster1.points) + len(cluster2.points) );
-        
-        temporary = list();
-        
+
+        temporary = [];
+
         for index in range(self.__number_represent_points):
             maximal_distance = 0;
             maximal_point = None;
-            
+
             for point in merged_cluster.points:
                 minimal_distance = 0;
                 if (index == 0):
                     minimal_distance = euclidean_distance(point, merged_cluster.mean);
                     #minimal_distance = euclidean_distance_sqrt(point, merged_cluster.mean);
                 else:
-                    minimal_distance = min([euclidean_distance(point, p) for p in temporary]);
-                    #minimal_distance = cluster_distance(cure_cluster(point), cure_cluster(temporary[0]));
-                    
+                    minimal_distance = min(euclidean_distance(point, p) for p in temporary);
+                                #minimal_distance = cluster_distance(cure_cluster(point), cure_cluster(temporary[0]));
+
                 if (minimal_distance >= maximal_distance):
                     maximal_distance = minimal_distance;
                     maximal_point = point;
-        
+
             if (maximal_point not in temporary):
                 temporary.append(maximal_point);
-                
+
         for point in temporary:
             representative_point = [0] * dimension;
             for index in range(dimension):
                 representative_point[index] = point[index] + self.__compression * (merged_cluster.mean[index] - point[index]);
-                
+
             merged_cluster.rep.append(representative_point);
-        
+
         return merged_cluster;
 
 
@@ -424,22 +424,22 @@ class cure:
         """
         
         self.__queue = [cure_cluster(point) for point in self.__pointer_data];
-        
+
         # set closest clusters
-        for i in range(0, len(self.__queue)):
+        for i in range(len(self.__queue)):
             minimal_distance = float('inf');
             closest_index_cluster = -1;
-            
-            for k in range(0, len(self.__queue)):
+
+            for k in range(len(self.__queue)):
                 if (i != k):
                     dist = self.__cluster_distance(self.__queue[i], self.__queue[k]);
                     if (dist < minimal_distance):
                         minimal_distance = dist;
                         closest_index_cluster = k;
-            
+
             self.__queue[i].closest = self.__queue[closest_index_cluster];
             self.__queue[i].distance = minimal_distance;
-        
+
         # sort clusters
         self.__queue.sort(key = lambda x: x.distance, reverse = False);
     

@@ -74,27 +74,27 @@ class SyncprTestTemplates:
     @staticmethod
     def templateTrainNetworkAndRecognizePattern(ccore_flag):
         net = syncpr(10, 0.1, 0.1, ccore_flag);
-         
+
         patterns =  [];
         patterns += [ [1, 1, 1, 1, 1, -1, -1, -1, -1, -1] ];
         patterns += [ [-1, -1, -1, -1, -1, 1, 1, 1, 1, 1] ];
-         
+
         net.train(patterns);
-         
+
         # recognize it
-        for i in range(len(patterns)):
-            output_dynamic = net.simulate(10, 10, patterns[i], solve_type.RK4, True);
-             
+        for pattern in patterns:
+            output_dynamic = net.simulate(10, 10, pattern, solve_type.RK4, True);
+
             ensembles = output_dynamic.allocate_sync_ensembles(0.5);
             assert len(ensembles) == 2;
             assert len(ensembles[0]) == len(ensembles[1]);
-             
+
             # sort results
             ensembles[0].sort();
             ensembles[1].sort();
-             
-            assert (ensembles[0] == [0, 1, 2, 3, 4]) or (ensembles[0] == [5, 6, 7, 8, 9]);
-            assert (ensembles[1] == [0, 1, 2, 3, 4]) or (ensembles[1] == [5, 6, 7, 8, 9]);
+
+            assert ensembles[0] in [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]];
+            assert ensembles[1] in [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]];
 
 
     @staticmethod

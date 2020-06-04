@@ -316,39 +316,39 @@ class hhn_network(network):
         next_active_sodium      = [0.0] * self._num_osc;
         next_inactive_sodium    = [0.0] * self._num_osc;
         next_active_potassium   = [0.0] * self._num_osc;
-        
+
         # Update states of oscillators
         for index in range (0, self._num_osc, 1):
             result = odeint(self.hnn_state, 
                             [ self._membrane_potential[index], self._active_cond_sodium[index], self._inactive_cond_sodium[index], self._active_cond_potassium[index] ], 
                             numpy.arange(t - step, t, int_step), 
                             (index , ));
-                            
+
             [ next_membrane[index], next_active_sodium[index], next_inactive_sodium[index], next_active_potassium[index] ] = result[len(result) - 1][0:4];        
-        
+
         next_cn_membrane            = [0.0, 0.0];
         next_cn_active_sodium       = [0.0, 0.0];
         next_cn_inactive_sodium     = [0.0, 0.0];
         next_cn_active_potassium    = [0.0, 0.0];
-        
+
         # Update states of central elements
-        for index in range(0, len(self._central_element)):
+        for index in range(len(self._central_element)):
             result = odeint(self.hnn_state, 
                             [ self._central_element[index].membrane_potential, self._central_element[index].active_cond_sodium, self._central_element[index].inactive_cond_sodium, self._central_element[index].active_cond_potassium ], 
                             numpy.arange(t - step, t, int_step), 
                             (self._num_osc + index , ));
-                            
+
             [ next_cn_membrane[index], next_cn_active_sodium[index], next_cn_inactive_sodium[index], next_cn_active_potassium[index] ] = result[len(result) - 1][0:4];
-        
+
         # Noise generation
         self._noise = [ 1.0 + 0.01 * (random.random() * 2.0 - 1.0) for i in range(self._num_osc)];
-        
+
         # Updating states of PNs
         self.__update_peripheral_neurons(t, step, next_membrane, next_active_sodium, next_inactive_sodium, next_active_potassium);
-        
+
         # Updation states of CN
         self.__update_central_neurons(t, next_cn_membrane, next_cn_active_sodium, next_cn_inactive_sodium, next_cn_active_potassium);
-        
+
         return next_membrane + next_cn_membrane;
     
     
@@ -369,8 +369,8 @@ class hhn_network(network):
         self._active_cond_sodium = next_active_sodium[:];
         self._inactive_cond_sodium = next_inactive_sodium[:];
         self._active_cond_potassium = next_active_potassium[:];
-        
-        for index in range(0, self._num_osc):
+
+        for index in range(self._num_osc):
             if (self._pulse_generation[index] is False):
                 if (self._membrane_potential[index] > 0.0):
                     self._pulse_generation[index] = True;
@@ -378,17 +378,20 @@ class hhn_network(network):
             else:
                 if (self._membrane_potential[index] < 0.0):
                     self._pulse_generation[index] = False;
-            
+
             # Update connection from CN2 to PN
             if (self._link_weight3[index] == 0.0):
-                if ( (self._membrane_potential[index] > self._params.threshold) and (self._membrane_potential[index] > self._params.threshold) ):
+                if self._membrane_potential[index] > self._params.threshold:
                     self._link_pulse_counter[index] += step;
-                
+
                     if (self._link_pulse_counter[index] >= 1 / self._params.eps):
                         self._link_weight3[index] = self._params.w3;
                         self._link_activation_time[index] = t;
             else:
-                if ( not ((self._link_activation_time[index] < t) and (t < self._link_activation_time[index] + self._params.deltah)) ):
+                if (
+                    self._link_activation_time[index] >= t
+                    or t >= self._link_activation_time[index] + self._params.deltah
+                ):
                     self._link_weight3[index] = 0.0;
                     self._link_pulse_counter[index] = 0.0;
     
@@ -405,12 +408,12 @@ class hhn_network(network):
         
         """
         
-        for index in range(0, len(self._central_element)):
+        for index in range(len(self._central_element)):
             self._central_element[index].membrane_potential = next_cn_membrane[index];
             self._central_element[index].active_cond_sodium = next_cn_active_sodium[index];
             self._central_element[index].inactive_cond_sodium = next_cn_inactive_sodium[index];
             self._central_element[index].active_cond_potassium = next_cn_active_potassium[index];
-            
+
             if (self._central_element[index].pulse_generation is False):
                 if (self._central_element[index].membrane_potential > 0.0):
                     self._central_element[index].pulse_generation = True;
@@ -520,11 +523,8 @@ class hhn_network(network):
         
         """
         
-        ignore = set();
-        
-        ignore.add(self._num_osc);
-        ignore.add(self._num_osc + 1);
-        
+        ignore = {self._num_osc, self._num_osc + 1};
+
         return allocate_sync_ensembles(self._membrane_dynamic_pointer, tolerance, 20.0, ignore);
     
     

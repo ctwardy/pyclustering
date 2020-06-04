@@ -84,13 +84,13 @@ class dimension_info:
     def __calculate_maxmin_dimension_coordinate(self):
         self.__maximum_dimension = [self.__data[0][i] for i in range(self.get_dimensions())];
         self.__minimum_dimension = [self.__data[0][i] for i in range(self.get_dimensions())];
-        
-        for i in range(len(self.__data)):
+
+        for __datum in self.__data:
             for dim in range(self.get_dimensions()):
-                if (self.__maximum_dimension[dim] < self.__data[i][dim]):
-                    self.__maximum_dimension[dim] = self.__data[i][dim];
-                elif (self.__minimum_dimension[dim] > self.__data[i][dim]):
-                    self.__minimum_dimension[dim] = self.__data[i][dim];
+                if self.__maximum_dimension[dim] < __datum[dim]:
+                    self.__maximum_dimension[dim] = __datum[dim];
+                elif self.__minimum_dimension[dim] > __datum[dim]:
+                    self.__minimum_dimension[dim] = __datum[dim];
 
 
     def __calculate_width(self):

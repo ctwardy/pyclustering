@@ -44,29 +44,31 @@ class AntmeanIntegrationTest(unittest.TestCase):
         params.ro = ro;
 
         sample = read_sample(path);
-        
+
         testing_result = False;
         for _ in range(attempts):
             algo = antmean(sample, count_clusters, params);
-            
+
             algo.process();
-    
+
             clusters = algo.get_clusters();
             if (sum([len(cluster) for cluster in clusters]) != len(sample)):
                 continue;
-            
+
             if (len(clusters) != len(expected_length_clusters)):
                 continue;
-            
-            if (sum([len(cluster) for cluster in clusters]) != sum(expected_length_clusters)):
+
+            if sum(len(cluster) for cluster in clusters) != sum(
+                expected_length_clusters
+            ):
                 continue;
-            
+
             if (sorted([len(cluster) for cluster in clusters]) != sorted(expected_length_clusters)):
                 continue;
-            
+
             testing_result = True;
             break;
-        
+
         assert testing_result == True;
 
 

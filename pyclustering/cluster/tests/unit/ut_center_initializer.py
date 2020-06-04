@@ -132,8 +132,7 @@ class KmeansPlusPlusInitializerUnitTest(unittest.TestCase):
 
     def testCalcDistanceToNearestCenter(self):
         # Test Data
-        data_set_1 = [];
-        data_set_1.extend([[0, 0], [1, 0], [0, 1], [1, 1]]);
+        data_set_1 = list([[0, 0], [1, 0], [0, 1], [1, 1]]);
         data_set_1.extend([[5, 0], [6, 0], [5, 1], [6, 1]]);
         data_set_1.extend([[0, 5], [1, 5], [0, 6], [1, 6]]);
         data_set_1.extend([[4, 4], [7, 4], [4, 7], [7, 7]]);

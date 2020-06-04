@@ -36,33 +36,33 @@ from pyclustering.samples.definitions import GRAPH_SIMPLE_SAMPLES;
 class Test(unittest.TestCase):
     def templateTestColoringNegativeConnections(self, filename, solver_type = solve_type.FAST):
         result_testing = False;
-        
+
+        result_testing = True;
+
         # If phases crosses each other because of random part of the network then we should try again.
-        for attempt in range(0, 3, 1):        
+        for _ in range(0, 3, 1):        
             graph = read_graph(filename);
             syncgcolor_network = syncgcolor(graph.data, 0, -1);
-            
+
             analyser = syncgcolor_network.process(solution = solver_type);
-            
+
             map_coloring = analyser.allocate_map_coloring(0.05);
-            
+
             # Check number of colors
             assigned_colors = set(map_coloring);
-            
+
             # Check validity of color numbers
             for color_number in range(0, len(assigned_colors), 1):
                 if (color_number not in assigned_colors):
                     continue;
-                
+
             # Check validity of colors
             for index_node in range(len(graph.data)):
                 color_neighbors = [ map_coloring[index] for index in range(len(graph.data[index_node])) if graph.data[index_node][index] != 0 and index_node != index];
                 #print(index_node, map_coloring[index_node], color_neighbors, assigned_colors, map_coloring, "\n\n");
                 if (map_coloring[index_node] in color_neighbors):
                     continue;
-            
-            result_testing = True;
-                
+
         assert result_testing;
 
     def testColoringFull1(self):

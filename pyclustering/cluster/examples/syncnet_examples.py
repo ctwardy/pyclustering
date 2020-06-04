@@ -139,26 +139,26 @@ def cluster_simple5_conn_weight():
 def template_animated_clustering(file, radius, order, expected_cluster_amount, title_animation = None):
     sample = read_sample(file);
     expected_result_obtained = False;
-     
+
     analyser = None;
-     
-    while (expected_result_obtained == False):
+
+    while not expected_result_obtained:
         network = syncnet(sample, radius, initial_phases = initial_type.RANDOM_GAUSSIAN, ccore = True);
-     
+
         analyser = network.process(order, solve_type.FAST, True);
         clusters = analyser.allocate_clusters(0.1);
-     
+
         if (len(clusters) == expected_cluster_amount):
             print("Expected result is obtained - start rendering...")
             expected_result_obtained = True;
-             
+
             visualizer = cluster_visualizer();
             visualizer.append_clusters(clusters, sample);
             visualizer.show();
-             
+
         else:
             print("Expected result is NOT obtained - rendering is NOT started ( actual:", len(clusters), ")...");
-     
+
     syncnet_visualizer.animate_cluster_allocation(sample, analyser, tolerance = 0.1, save_movie = "clustering_animation.mp4", title = title_animation);
  
 def animation_cluster_allocation_sample_simple3():

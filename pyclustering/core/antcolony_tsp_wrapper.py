@@ -130,18 +130,18 @@ def antcolony_tsp_prepare_matrix(matrix):
     
 def antcolony_tsp_prepare_cities_list(cities):
     dimension = len(cities[0]);
-    
+
     cities_coord = c_antcolony_tsp_objects();
     cities_coord.size = c_uint(len(cities) * dimension);
     cities_coord.dimension = c_uint(dimension);
-    
+
     cities_coord.data = (c_double * cities_coord.size)();
-    
-    for i in range(0, cities_coord.size):
+
+    for i in range(cities_coord.size):
         cities_coord.data[i] = cities[i // dimension][i % dimension];
-    
+
     cities_coord = pointer(cities_coord);
-    
+
     return cities_coord
 
 

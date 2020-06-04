@@ -35,31 +35,30 @@ from pyclustering.samples.definitions import IMAGE_SIMPLE_SAMPLES, IMAGE_MAP_SAM
 def template_segmentation_image(image, parameters, simulation_time, brightness, scale_color = True, fastlinking = False, show_spikes = False, ccore_flag = True):
     image_source = Image.open(image);
     image_size = image_source.size;
-    
+
     width = image_size[0];
     height = image_size[1];
-    
+
     stimulus = read_image(image);
     stimulus = rgb2gray(stimulus);
-    
-    if (brightness != None):
-        for pixel_index in range(len(stimulus)):
-            if (stimulus[pixel_index] < brightness): stimulus[pixel_index] = 1;
-            else: stimulus[pixel_index] = 0;
-    else:
+
+    if brightness is None:
         maximum_stimulus = float(max(stimulus));
         minimum_stimulus = float(min(stimulus));
         delta = maximum_stimulus - minimum_stimulus;
-        
+
         for pixel_index in range(len(stimulus)):
             if (scale_color is True):
                 stimulus[pixel_index] = 1.0 - ((float(stimulus[pixel_index]) - minimum_stimulus) / delta);
             else:
                 stimulus[pixel_index] = float(stimulus[pixel_index]) / 255;
-    
+
+    else:
+        for pixel_index in range(len(stimulus)):
+            stimulus[pixel_index] = 1 if (stimulus[pixel_index] < brightness) else 0
     if (parameters is None):
         parameters = pcnn_parameters();
-    
+
         parameters.AF = 0.1;
         parameters.AL = 0.1;
         parameters.AT = 0.8;
@@ -68,23 +67,23 @@ def template_segmentation_image(image, parameters, simulation_time, brightness, 
         parameters.VT = 30.0;
         parameters.W = 1.0;
         parameters.M = 1.0;
-        
+
         parameters.FAST_LINKING = fastlinking;
-    
+
     net = pcnn_network(len(stimulus), parameters, conn_type.GRID_EIGHT, height = height, width = width, ccore = ccore_flag);
     output_dynamic = net.simulate(simulation_time, stimulus);
-    
+
     pcnn_visualizer.show_output_dynamic(output_dynamic);
-    
+
     ensembles = output_dynamic.allocate_sync_ensembles();
     draw_image_mask_segments(image, ensembles);
-    
+
     pcnn_visualizer.show_time_signal(output_dynamic);
-    
+
     if (show_spikes is True):
         spikes = output_dynamic.allocate_spike_ensembles();
         draw_image_mask_segments(image, spikes);
-        
+
         pcnn_visualizer.animate_spike_ensembles(output_dynamic, image_size);
     
     

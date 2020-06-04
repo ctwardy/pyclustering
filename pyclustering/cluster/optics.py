@@ -192,48 +192,48 @@ class ordering_analyser:
         """
         
         amount_clusters = 1;
-        
+
         cluster_start = False;
         cluster_pick = False;
         total_similarity = True;
         previous_cluster_distance = None;
         previous_distance = None;
-        
+
         cluster_borders = [];
-        
+
         for index_ordering in range(len(self.__ordering)):
             distance = self.__ordering[index_ordering];
             if (distance >= radius):
-                if (cluster_start is False):
-                    cluster_start = True;
-                    amount_clusters += 1;
-                    
-                    if (index_ordering != 0):
-                        cluster_borders.append(index_ordering);
-                
-                else:
-                    if ((distance < previous_cluster_distance) and (cluster_pick is False)):
+                if cluster_start:
+                    if distance < previous_cluster_distance and not cluster_pick:
                         cluster_pick = True;
-                    
+
                     elif ((distance > previous_cluster_distance) and (cluster_pick is True)):
                         cluster_pick = False;
                         amount_clusters += 1;
-                        
+
                         if (index_ordering != 0):
                             cluster_borders.append(index_ordering);
-                
+
+                else:
+                    cluster_start = True;
+                    amount_clusters += 1;
+
+                    if (index_ordering != 0):
+                        cluster_borders.append(index_ordering);
+
                 previous_cluster_distance = distance;
-            
+
             else:
                 cluster_start = False;
                 cluster_pick = False;
-            
-            if ( (previous_distance is not None) and (distance != previous_distance) ):
+
+            if not (previous_distance is None or distance == previous_distance):
                 total_similarity = False;
-            
+
             previous_distance = distance;
-        
-        if ( (total_similarity is True) and (previous_distance > radius) ):
+
+        if total_similarity and previous_distance > radius:
             amount_clusters = 0;
 
         return amount_clusters, cluster_borders;
@@ -515,38 +515,38 @@ class optics:
         """
         
         optics_object.processed = True;
-        
+
         neighbors_descriptor = self.__neighbor_indexes(optics_object);
         optics_object.reachability_distance = None;
-        
+
         self.__ordered_database.append(optics_object);
-        
+
         # Check core distance
         if (len(neighbors_descriptor) >= self.__minpts):
             neighbors_descriptor.sort(key = lambda obj: obj[1]);
             optics_object.core_distance = neighbors_descriptor[self.__minpts - 1][1];
-            
+
             # Continue processing
-            order_seed = list();
+            order_seed = [];
             self.__update_order_seed(optics_object, neighbors_descriptor, order_seed);
-            
-            while(len(order_seed) > 0):
+
+            while order_seed:
                 optic_descriptor = order_seed[0];
                 order_seed.remove(optic_descriptor);
-                
+
                 neighbors_descriptor = self.__neighbor_indexes(optic_descriptor);
                 optic_descriptor.processed = True;
-                
+
                 self.__ordered_database.append(optic_descriptor);
-                
+
                 if (len(neighbors_descriptor) >= self.__minpts):
                     neighbors_descriptor.sort(key = lambda obj: obj[1]);
                     optic_descriptor.core_distance = neighbors_descriptor[self.__minpts - 1][1];
-                    
+
                     self.__update_order_seed(optic_descriptor, neighbors_descriptor, order_seed);
                 else:
                     optic_descriptor.core_distance = None;
-                    
+
         else:
             optics_object.core_distance = None;
 
@@ -567,7 +567,7 @@ class optics:
                     self.__clusters.append([ optics_object.index_object ]);
                     current_cluster = self.__clusters[-1];
                 else:
-                    self.__noise.append(optics_object.index_object);
+                    current_cluster.append(optics_object.index_object)
             else:
                 current_cluster.append(optics_object.index_object);
 
@@ -584,20 +584,20 @@ class optics:
         
         for neighbor_descriptor in neighbors_descriptors:
             index_neighbor = neighbor_descriptor[0];
-            current_reachable_distance = neighbor_descriptor[1];
-            
             if (self.__optics_objects[index_neighbor].processed != True):
+                current_reachable_distance = neighbor_descriptor[1];
+
                 reachable_distance = max(current_reachable_distance, optic_descriptor.core_distance);
                 if (self.__optics_objects[index_neighbor].reachability_distance is None):
                     self.__optics_objects[index_neighbor].reachability_distance = reachable_distance;
-                    
+
                     # insert element in queue O(n) - worst case.
                     index_insertion = len(order_seed);
-                    for index_seed in range(0, len(order_seed)):
+                    for index_seed in range(len(order_seed)):
                         if (reachable_distance < order_seed[index_seed].reachability_distance):
                             index_insertion = index_seed;
                             break;
-                    
+
                     order_seed.insert(index_insertion, self.__optics_objects[index_neighbor]);
 
                 else:

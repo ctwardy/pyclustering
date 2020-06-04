@@ -247,23 +247,22 @@ class fsync_network(network):
         """
         
         dynamic_amplitude, dynamic_time = ([], []) if collect_dynamic is False else ([self.__amplitude], [0]);
-        
+
         step = time / steps;
         int_step = step / 10.0;
-        
+
         for t in numpy.arange(step, time + step, step):
             self.__amplitude = self.__calculate(t, step, int_step);
-            
+
             if (collect_dynamic == True):
                 dynamic_amplitude.append([ numpy.real(amplitude)[0] for amplitude in self.__amplitude ]);
                 dynamic_time.append(t);
-        
+
         if (collect_dynamic != True):
             dynamic_amplitude.append([ numpy.real(amplitude)[0] for amplitude in self.__amplitude ]);
             dynamic_time.append(time);
 
-        output_sync_dynamic = fsync_dynamic(dynamic_amplitude, dynamic_time);
-        return output_sync_dynamic;
+        return fsync_dynamic(dynamic_amplitude, dynamic_time);
 
 
     def __calculate(self, t, step, int_step):

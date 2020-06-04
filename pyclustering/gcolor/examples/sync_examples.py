@@ -36,28 +36,28 @@ from pyclustering.samples.definitions import GRAPH_SIMPLE_SAMPLES;
 def template_graph_coloring(positive_weight, negative_weight, filename, reduction = None, title = None):
     if (title is None): title = filename;
     print("\nGraph Coloring: ", title);
-    
+
     graph = read_graph(filename);
     network = syncgcolor(graph.data, positive_weight, negative_weight, reduction);
-    
+
     analyser = network.process(order = 0.999, solution = solve_type.FAST, collect_dynamic = True);
     sync.sync_visualizer.show_output_dynamic(analyser);
 
     clusters = analyser.allocate_color_clusters();
-    
-    for index in range(0, len(clusters)):
+
+    for index in range(len(clusters)):
         print("Color #", index, ": ", clusters[index]);
-        
+
     coloring_map = analyser.allocate_map_coloring();
     print("Number colors: ", max(coloring_map));
-    
+
     draw_graph(graph, coloring_map);
-    
+
     # Check validity of colors
     for index_node in range(len(graph.data)):
         color_neighbors = [ coloring_map[index] for index in range(len(graph.data[index_node])) if graph.data[index_node][index] != 0 and index_node != index];
         #print(index_node, map_coloring[index_node], color_neighbors, assigned_colors, map_coloring, "\n\n");
-        
+
         if (coloring_map[index_node] in color_neighbors):
             print("Warining: Incorrect coloring");
             return;
